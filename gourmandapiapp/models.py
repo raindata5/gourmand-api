@@ -1,38 +1,46 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Numeric
+from sqlalchemy import Column, Integer, String, ForeignKey, Numeric, Boolean
 from sqlalchemy.sql.expression import text
-from sqlalchemy.sql.sqltypes import DATETIME, TIMESTAMP
+from sqlalchemy.sql.sqltypes import DATETIME, TIMESTAMP, Date
 from sqlalchemy.orm import relationship
 from .db import Base
 
 class BusinessModelORM(Base):
     __tablename__ = "business"
+    __table_args__ = {"schema": "_Production"}
     businessid = Column(Integer, primary_key=True, nullable=False)
     businessname = Column(String, nullable=False)
     chainname = Column(String, nullable=False)
     addressline1 = Column(String, nullable=False)
     addressline2 = Column(String, nullable=True)
     addressline3 = Column(String, nullable=True)
-    latitude = Column(Numeric, precision=8, scale=6)
-    longitude = Column(Numeric, precision=9, scale=6)
+    latitude = Column(Numeric(precision=8, scale=6), nullable=True)
+    longitude = Column(Numeric(precision=9, scale=6), nullable=True)
     zipcode = Column(String, nullable=True)
     businessphone = Column(String, nullable=True)
     businessurl = Column(String(500), nullable=True)
-    is_closed = Column
-    #alter is_closed to boolean
-    # businessname text COLLATE pg_catalog."default",
-    # chainname text COLLATE pg_catalog."default",
-    # addressline1 text COLLATE pg_catalog."default",
-    # addressline2 character varying(100) COLLATE pg_catalog."default",
-    # addressline3 character varying(100) COLLATE pg_catalog."default",
-    # latitude numeric,
-    # longitude numeric,
-    # zipcode character varying(50) COLLATE pg_catalog."default",
-    # businessphone character varying(50) COLLATE pg_catalog."default",
-    # businessurl character varying(500) COLLATE pg_catalog."default",
-    # is_closed integer,
-    # distancetocounty integer,
-    # cityid integer,
-    # countyid integer,
-    # stateid integer,
-    # paymentlevelid integer,
-    # lasteditedwhen timestamp(3) without time zone,
+    is_closed = Column(Boolean, nullable=False)
+    distancetocounty = Column(Integer, nullable=True)
+    cityid = Column(Integer, nullable=True)
+    countyid = Column(Integer, nullable=True)
+    stateid = Column(Integer, nullable=True)
+    paymentlevelid = Column(Integer, nullable=True)
+    lasteditedwhen = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
+    
+
+class BusinessHoldingModelORM(Base):
+    __tablename__ = "businessholding"
+    __table_args__ = {"schema": "_Production"}
+    businessholdingid = Column(Integer, primary_key=True, nullable=False)
+    businessid = Column(Integer, ForeignKey("_Production.business.businessid", ondelete="CASCADE"), nullable=False)
+    businessrating = Column(Numeric(precision=2, scale=1), nullable=True)
+    reviewcount = Column(Integer, nullable=True)
+    closedate = Column(Date, nullable=False)
+    business = relationship("BusinessModelORM")
+
+class AuthUserModelORM(Base):
+    __tablename__ = "authuser"
+    __table_args__ = {"schema": "_Production"}
+    userid = Column(Integer, primary_key=True, nullable=False)
+    email = Column(String(60), unique=True, nullable=False)
+    password = Column(String, nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), nullable = False, server_default=text('now()'))
