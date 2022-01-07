@@ -82,7 +82,7 @@ jobs:
           user: ${{secrets.ubuntu_user}}
           password: ${{ secrets.UBUNTU_CONTRIBUTOR_PASS }}
           # passphrase : ${{secrets.UBUNTU_PASSPHRASE}}
-        script: |
-          cd gourmand-api/
-          git pull
-          echo ${{secrets.UBUNTU_CONTRIBUTOR_PASS}} | sudo -S systemctl restart gourmandapi.service 
+          script: |
+            cd gourmand-api/
+            git pull
+            echo ${{secrets.UBUNTU_CONTRIBUTOR_PASS}} | sudo -S systemctl restart gourmandapi.service 
