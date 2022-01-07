@@ -13,4 +13,6 @@ app.include_router(auth.router)
 
 @app.get("/")
 def home():
-    return {"detail": "¿hola qué tal?"}
+    return {"detail": "Feel free to check of the documentations at...",
+            "option 1": "https://www.raindata.xyz/docs",
+            "option 2": "https://www.raindata.xyz/redocs"}

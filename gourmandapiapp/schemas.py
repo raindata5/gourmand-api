@@ -1,6 +1,6 @@
 from datetime import datetime
 import json
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 from email_validator import validate_email
 
@@ -19,25 +19,32 @@ class BusinessResponseSchema(BaseModel):
     businessname: str
     chainname: str
     addressline1: str
-    addressline2: str
-    addressline3: str
-    latitude: float
-    longitude: float
-    zipcode: str
-    businessphone: str
-    businessurl: str
+    addressline2: Optional[str] = None
+    addressline3: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    zipcode: Optional[str] = None
+    businessphone: Optional[str] = None
+    businessurl: Optional[str] = None
     is_closed: bool
-    distancetocounty: int
-    cityid: int
-    countyid: int
-    stateid: int
-    paymentlevelid: int
+    distancetocounty: Optional[int] = None
+    cityid: Optional[int] = None
+    countyid: Optional[int] = None
+    stateid: Optional[int] = None
+    paymentlevelid: Optional[int] = None
     lasteditedwhen: datetime
     class Config:
         orm_mode = True 
 
 class TokenData(BaseModel):
     userid: int
+
+
+class PullDataSchema(BaseModel):
+    limit: Optional[int] = Field(0, title=" the desired amount of results must be between 0 and 100", ge = 0, le=100 )
+    offset: Optional[int] = Field(0, title=" the desired amount of results passed over must be between 0 and 50", ge = 0, le=50 )
+    keyword: Optional[str] = Field('', max_length=100 )
+    sort: Optional[str] = Field('businessname', max_length=100 )
 
 # converts model object into a python dictionary or into a json string through parameter
 def dict_request(orm_model, inc_json_dump=False):

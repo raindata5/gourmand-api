@@ -22,7 +22,10 @@ def test_pull_business_redis(test_client, inserted_business):
 ])
 def test_pull_businesses_with_options(test_client, keyword, sort, limit, offset):
     bus_json = {"keyword":keyword, "sort":sort, "limit":limit, "offset":offset}
-    res = test_client.get('/businesses', params = bus_json)
+    res = test_client.get('/businesses', json = bus_json)
+    print(res)
+    print(res.json())
     assert res.status_code == 200
+    
     # make a fixture in conftest so I can store a business in a variable and then make sure offset works properly
 

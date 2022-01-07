@@ -45,8 +45,9 @@ async def get_business(business_id: int, db: Session = Depends(get_db),  redis_c
 # perhaps revise the sort so either asc or desc can be chosen
 # also look to refactor refering to column object directly (take input, iterate through tables columns and pick one)
 @router.get('/')
-async def get_businesses(limit: Optional[int] = 100, offset: Optional[int] = None,  keyword: Optional[str] = '', sort: Optional[str] = 'businessname',db: Session = Depends(get_db)):
-    businesses = db.query(models.BusinessModelORM).filter(models.BusinessModelORM.chainname.contains(keyword)).order_by(desc(sort)).limit(limit).offset(offset).all()
+async def get_businesses(query_data: schemas.PullDataSchema = schemas.PullDataSchema() , db: Session = Depends(get_db)):
+    print(query_data.sort)
+    businesses = db.query(models.BusinessModelORM).filter(models.BusinessModelORM.chainname.contains(query_data.keyword)).order_by(desc(query_data.sort)).limit(query_data.limit).offset(query_data.offset).all()
 
     return businesses
 
