@@ -15,4 +15,5 @@ app.include_router(auth.router)
 def home():
     return {"detail": "Feel free to check of the documentations at...",
             "option 1": "https://www.raindata.xyz/docs",
-            "option 2": "https://www.raindata.xyz/redocs"}
+            "option 2": "https://www.raindata.xyz/redocs",
+            "news": "CI/CD Pipeline is functioning 😀"}
