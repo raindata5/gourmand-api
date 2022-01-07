@@ -3,7 +3,7 @@ name: learn-github-actions
 on: [push]
 
 jobs:
-  check-bats-version:
+  push-and-test:
     environment:
       name: production
     env:
@@ -53,19 +53,36 @@ jobs:
         run: |
           pip install pytest
           pytest 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
+      #optional docker config
+      # - name: Login to Docker Hub
+      #   uses: docker/login-action@v1
+      #   with:
+      #     username: ${{ secrets.DOCKER_HUB_USERNAME }}
+      #     password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v1
+      # - name: Build and push
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     context: .
+      #     file: ./Dockerfile
+      #     builder: ${{ steps.buildx.outputs.name }}
+      #     push: true
+      #     tags: ${{ secrets.DOCKER_HUB_USERNAME }}/gourmand-api:latest
+      #     cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/gourmand-api:buildcache
+      #     cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/gourmand-api:buildcache,mode=max
+  deployment:
+    runs-on: ubuntu-latest
+    needs: [push-and-test]
+    steps:
+      - name: deploying to ubuntu vm
+        uses: appleboy/ssh-action@master
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name:
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/gourmand-api:latest
-          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/gourmand-api:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/gourmand-api:buildcache,mode=max
+          host: ${{secrets.pg_oltp_api_host}}
+          user: ${{secrets.ubuntu_user}}
+          password: ${{ secrets.UBUNTU_CONTRIBUTOR_PASS }}
+          # passphrase : ${{secrets.UBUNTU_PASSPHRASE}}
+        script: |
+          cd gourmand-api/
+          git pull
+          echo ${{secrets.UBUNTU_CONTRIBUTOR_PASS}} | sudo -S systemctl restart gourmandapi.service 
