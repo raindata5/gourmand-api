@@ -1,3 +1,5 @@
 gourmand-api-venv/
 .env
 **/__pycache__
+p_db.txt
+p_pass.txt

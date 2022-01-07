@@ -1,0 +1,25 @@
+version: "3"
+services: 
+    gourmandapi:
+        build: .
+        ports: 
+            - 8000:8000
+        env_file:
+          - ./.env
+    postgres:
+      image: postgres
+      env_file:
+          - ./.env
+      environment: 
+        - POSTGRES_PASSWORD=pg_oltp_api_password
+        - POSTGRES_DB=pg_oltp_api_db_test
+      volumes:
+        - gourmandapi-docker-db:/var/lib/postgresql/data
+
+volumes: 
+    fastapi-docker-db:
+secrets:
+  POSTGRES_PASSWORD:
+    file: p_pass.txt
+  POSTGRES_DB:
+    file: p_db.txt
