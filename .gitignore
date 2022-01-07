@@ -1,2 +1,3 @@
 gourmand-api-venv/
 .env
+**/__pycache__
