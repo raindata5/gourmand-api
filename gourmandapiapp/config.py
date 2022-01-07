@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     ALGORITHM: str
     SECRET_KEY: str
+    pg_oltp_api_db_test: str
+    
     class Config:
         env_file = ".env"
 

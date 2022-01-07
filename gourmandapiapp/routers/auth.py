@@ -4,9 +4,7 @@ from gourmandapiapp import models, schemas, utils, oauth2
 from ..db import get_db
 from typing import Optional
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-# set up alembic
-# set up redis
-# create more tests 
+
 
 router = APIRouter(tags=['token'])
 

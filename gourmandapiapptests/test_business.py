@@ -1,15 +1,20 @@
 import pytest
-
+from gourmandapiapp import schemas
 
 
 def test_home(test_client):
     res = test_client.get('/')
     assert res.status_code == 200
 
-def test_pull_business(test_client):
-    res = test_client.get('/businesses/1')
-    print(res.json())
+def test_pull_business(test_client,inserted_business):
 
+    res = test_client.get(f'/businesses/{inserted_business.businessid}')
+    pg_data = res.json() 
+
+def test_pull_business_redis(test_client, inserted_business):
+    res_postgres = test_client.get(f'/businesses/{inserted_business.businessid}')
+    res_redis = test_client.get(f'/businesses/{inserted_business.businessid}')
+    assert res_postgres.json() == res_redis.json()
 
 @pytest.mark.parametrize("keyword, sort, limit, offset", [
     ("Mcdonalds", "distancetocounty", 2, 0),
