@@ -23,7 +23,7 @@ def get_db():
 
 def start_redis():
     redis_client = redis.Redis(
-        host='127.0.0.1',
+        host='redis',
         port=6379, db=10)
     try:
         yield redis_client

@@ -1,12 +1,13 @@
 name: learn-github-actions
 
-on: [push]
+# on: [push]
 
 jobs:
   push-and-test:
     environment:
       name: production
     env:
+      NAME: ${{secrets.NAME}}
       pg_oltp_api_db_test: ${{secrets.pg_oltp_api_db_test}}
       pg_oltp_api_user: ${{secrets.pg_oltp_api_user}}
       pg_oltp_api_password: ${{secrets.pg_oltp_api_password}}

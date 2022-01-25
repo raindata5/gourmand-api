@@ -1,6 +1,6 @@
 from python:3.8.10
 
-WORKDIR /gourmandapi/gourmandapiapp
+WORKDIR /gourmandapi
 
 COPY requirements.txt ./
 
