@@ -1,6 +1,6 @@
 name: learn-github-actions
 
-# on: [push]
+on: [push]
 
 jobs:
   push-and-test:
