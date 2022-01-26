@@ -3,3 +3,5 @@ gourmand-api-venv/
 **/__pycache__
 p_db.txt
 p_pass.txt
+gourmandapiapp/__pycache__/*.pyc
+gourmandapiapp/routers/__pycache__/*.pyc

@@ -8,6 +8,7 @@ services:
           - ./.env
         environment:
           - NAME=Ronald
+        command: ENTRYPOINT ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "gourmandapiapp.main:app", "--bind", "0.0.0.0:8000"]
     postgres:
       image: postgres
       env_file:
