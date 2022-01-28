@@ -94,6 +94,7 @@ jobs:
     env:
       NAME: ${{secrets.NAME}}      
     runs-on: ubuntu-latest
+    needs: [push-and-test]
     steps:
       - name: running docker-compose
         uses: appleboy/ssh-action@master
