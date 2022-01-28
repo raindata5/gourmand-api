@@ -37,7 +37,7 @@ def test_session_db():
     ps_cursor.close()
     ps_conn.close()
     r1_client = redis.Redis(
-        host='redis',
+        host='127.0.0.1',
         port=6379, db=11)
     for key in r1_client.scan_iter("*"):
         r1_client.delete(key)
@@ -52,7 +52,7 @@ def test_session_db():
 def test_client(test_session_db):
     def override_start_redis():
         r1_client = redis.Redis(
-        host='redis',
+        host='127.0.0.1',
         port=6379, db=11)
         try:
             yield r1_client
