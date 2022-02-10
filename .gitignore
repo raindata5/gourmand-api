@@ -6,3 +6,4 @@ p_pass.txt
 gourmandapiapp/__pycache__/*.pyc
 gourmandapiapp/routers/__pycache__/*.pyc
 *.pyc
+gourmandapiapp/__pycache__/main.cpython-38.pyc
