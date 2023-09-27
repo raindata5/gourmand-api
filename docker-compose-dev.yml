@@ -7,7 +7,7 @@ services:
         env_file:
           - ./.env
         volumes:
-          - ./:/gourmandapi:ro
+          - ./:/gourmandapi
         environment:
           - NAME=Ronald
         entrypoint: ["uvicorn", "gourmandapiapp.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
