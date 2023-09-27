@@ -1,7 +1,23 @@
+import logging
 from fastapi import FastAPI
 from .routers import business, businessholdings, authusers, auth
 from fastapi.security import OAuth2PasswordBearer
 import os
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import JSONResponse, RedirectResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi import (
+    FastAPI,
+    status,
+    HTTPException,
+    Request,
+    Form
+)
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+templates = Jinja2Templates(directory="gourmandapiapp/templates")
 
 app = FastAPI()
 print('hello %s' % os.environ['NAME'])
@@ -13,9 +29,7 @@ app.include_router(authusers.router)
 app.include_router(auth.router)
 
 @app.get("/")
-def home():
-    return {"detail": "Feel free to check out the documentation at...",
-            "option 1": "https://www.raindata.xyz/docs",
-            "option 2": "https://www.raindata.xyz/redocs",
-            "news": "CI/CD Pipeline is functioning now through docker image push to docker hub and then docker-compose run on remote machine "}
-
+def index(request: Request):
+    return templates.TemplateResponse(
+        'index.html', {"request": request.headers}
+    )

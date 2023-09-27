@@ -1,0 +1,41 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pytest = "==7.1.2"
+attrs = "*"
+coverage = "==6.4.1"
+datetime = "==4.4"
+iniconfig = "==1.1.1"
+pluggy = "==1.0.0"
+py = "==1.11.0"
+pyparsing = "==3.0.9"
+pytest-cov = "==3.0.0"
+pytz = "==2022.1"
+tomli = "==2.0.1"
+"zope.interface" = "==5.4.0"
+build = "*"
+sqlalchemy = "*"
+fastapi = "*"
+uvicorn = {extras = ["standard"], version = "*"}
+httpx = "*"
+requests = "*"
+psycopg2 = "*"
+tenacity = "*"
+redis = "*"
+jinja2 = "*"
+pydantic-settings = "*"
+python-multipart = "*"
+python-dotenv = "*"
+python-jose = "*"
+pydantic = "*"
+
+
+
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"

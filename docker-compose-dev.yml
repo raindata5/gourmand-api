@@ -10,7 +10,9 @@ services:
           - ./:/gourmandapi
         environment:
           - NAME=Ronald
-        entrypoint: ["uvicorn", "gourmandapiapp.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+        entrypoint: [
+          "./docker_commands.sh"
+        ]
     postgres:
       image: postgres
       env_file:

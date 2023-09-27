@@ -1,4 +1,4 @@
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     pg_oltp_api_db: str
@@ -10,9 +10,13 @@ class Settings(BaseSettings):
     ALGORITHM: str
     SECRET_KEY: str
     pg_oltp_api_db_test: str
+    pg_oltp_api_host_test: str
     
     class Config:
         env_file = ".env"
 
 
 settings = Settings()
+config = {
+    'development': settings
+}
