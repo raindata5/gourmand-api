@@ -10,7 +10,7 @@ services:
           - ./:/gourmandapi:ro
         environment:
           - NAME=Ronald
-        # command: uvicorn gourmandapiapp.main:app --host 0.0.0.0 --port 8000 --reload
+        entrypoint: ["uvicorn", "gourmandapiapp.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     postgres:
       image: postgres
       env_file:
