@@ -2,7 +2,8 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Numeric, Boolean
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import DATETIME, TIMESTAMP, Date
 from sqlalchemy.orm import relationship
-from .db import Base
+from gourmandapiapp.db import Base
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class BusinessModelORM(Base):
     __tablename__ = "business"
@@ -44,3 +45,17 @@ class AuthUserModelORM(Base):
     email = Column(String(60), unique=True, nullable=False)
     password = Column(String, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable = False, server_default=text('now()'))
+
+    @property
+    def passy(self):
+        raise AttributeError("password is not a read attribute")
+    
+    @passy.setter
+    def passy(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+
+if __name__ == "__main__":
+    user = AuthUserModelORM()
