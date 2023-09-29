@@ -13,16 +13,20 @@
 
 FROM ubuntu
 
+
+ARG DEBIAN_FRONTEND=noninteractive
 ENV NAME="RONALD"
 
 WORKDIR /gourmandapi
 
 
 RUN apt update
+RUN apt install software-properties-common -y
+RUN add-apt-repository ppa:deadsnakes/ppa
 
-RUN apt-get install -y python3 python3-pip
+RUN apt-get install -y python3.10 python3-pip
 
-RUN apt-get install -y libpq-dev python-dev
+RUN apt-get install -y libpq-dev python2-dev
 
 RUN  PATH=$PATH:/usr/pgsql-9.3/bin/
 
@@ -31,20 +35,20 @@ RUN pip install pipenv
 
 COPY Pipfile ./
 
-COPY requirements.txt ./
+# COPY requirements.txt ./
 
 RUN pipenv install
 
-RUN pipenv install -r requirements.txt
+# RUN pipenv install -r requirements.txt
 
 COPY . .
 
 ENV LANG="C.UTF-8"
 
 
-RUN python3 -m pip install --upgrade build
+RUN python3.10 -m pip install --upgrade build
 
-RUN python3 -m build --wheel
+RUN python3.10 -m build --wheel
 
 RUN pipenv install -e .
 

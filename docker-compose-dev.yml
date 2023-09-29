@@ -14,7 +14,7 @@ services:
     networks:
       - g-api-network
   postgres:
-    image: postgres
+    image: postgres:14
     env_file:
       - ./.env
     ports:

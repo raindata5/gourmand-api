@@ -4,7 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pytest = "==7.1.2"
 attrs = "*"
 coverage = "==6.4.1"
 datetime = "==4.4"
@@ -19,24 +18,27 @@ tomli = "==2.0.1"
 build = "*"
 sqlalchemy = "*"
 fastapi = "*"
-uvicorn = {extras = ["standard"], version = "*"}
 httpx = "*"
 requests = "*"
 psycopg2 = "*"
 tenacity = "*"
 redis = "*"
 jinja2 = "*"
+passlib = "*"
 pydantic-settings = "*"
 python-multipart = "*"
 python-dotenv = "*"
 python-jose = "*"
 pydantic = "*"
+pytest = "==7.1.2"
 alembic = "*"
-
-
-
+uvicorn = "*"
+werkzeug = "*"
+email-validator = "*"
+gunicorn = "*"
+starlette = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.8"
+python_version = "3.10"
