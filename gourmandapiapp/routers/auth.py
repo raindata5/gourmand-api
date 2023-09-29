@@ -4,7 +4,8 @@ from fastapi import (
     HTTPException,
     status,
     Request,
-    Form
+    Form,
+    Response
 )
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -21,11 +22,17 @@ from fastapi.security import (
     HTTPBasicCredentials
 )
 from fastapi.responses import RedirectResponse
+import requests
+
+from fastapi_login import LoginManager
+from gourmandapiapp.config import settings
 
 templates = Jinja2Templates(directory="gourmandapiapp/templates")
-security = HTTPBasic(scheme_name="basic_user_and_pass")
+security = HTTPBasic()
 
 router = APIRouter(tags=['token'])
+
+manager = LoginManager(settings.SECRET_KEY, token_url='/token')
 
 @router.post('/token')
 async def login(login_form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -37,6 +44,9 @@ async def login(login_form_data: OAuth2PasswordRequestForm = Depends(), db: Sess
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Incorrect username or password")
     token = oauth2.create_access_token(user_data= {"userid": fetched_user.userid})
     return {"access_token": token, "token_type": "bearer"}
+
+# def load_user():
+#     user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.email == email).first()
 
 @router.get('/login')
 def simple_login(request: Request):
@@ -50,6 +60,7 @@ def simple_login(request: Request):
 @router.post('/login')
 def simple_login(
     request: Request,
+    response: Response,
     email: Annotated[str, Form(title="Your email you signed up with")],
     password: Annotated[str, Form(title="The Password you signed up with")],
     db: Session = Depends(get_db)
@@ -73,7 +84,21 @@ def simple_login(
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Basic"},
         )
-    return RedirectResponse(
-        url="/",
-        status_code=303
+    # print(request.get("referer", ""))
+    res = requests.post(
+        request.headers.get("origin", "ronald") + "/token",
+        data={
+            "username":email,
+            "password": password
+        }
     )
+    res_json = res.json()
+    # response.set_cookie(key="Authorization", value=res_json["token_type"].title() + ' ' + res_json["access_token"])
+    # print(vars(request))
+    # print(res.json())
+    redirect_res = RedirectResponse(
+        url="/",
+        status_code=303,
+    )
+    redirect_res.set_cookie(key="Authorization", value=res_json["token_type"].title() + ' ' + res_json["access_token"])
+    return redirect_res

@@ -14,7 +14,7 @@ from sqlalchemy.sql.functions import user
 from . import models
 from .db import get_db
 from . import schemas, utils
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Cookie
 from gourmandapiapp.config import settings
 from typing import Annotated
 
@@ -41,7 +41,10 @@ def verify_access_token(token: str, credentials_exception):
     return token_data
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+# def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_current_user(Authorization: Annotated[str, Cookie()] , db: Session = Depends(get_db)):
+    token = Authorization.split(' ')[1]
+    print(token)
     credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",

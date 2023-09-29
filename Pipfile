@@ -37,6 +37,7 @@ werkzeug = "*"
 email-validator = "*"
 gunicorn = "*"
 starlette = "*"
+fastapi-login = "*"
 
 [dev-packages]
 
