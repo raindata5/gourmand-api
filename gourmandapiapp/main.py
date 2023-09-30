@@ -30,6 +30,7 @@ app.include_router(business.router)
 app.include_router(businessholdings.router)
 app.include_router(authusers.router)
 app.include_router(auth.router)
+app.add_exception_handler(status.HTTP_401_UNAUTHORIZED, auth.exc_handler)
 
 @app.get("/")
 def index(request: Request):
@@ -37,8 +38,13 @@ def index(request: Request):
         'index.html', {"request": request.headers}
     )
 
-@app.get("/secure_index", )
+
+
+
+# test endpoint for getting a token from a cookie
+@app.get("/index_secure", )
 def index(request: Request,  db: Session = Depends(get_db), user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user)):
+    
     return templates.TemplateResponse(
-        'index.html', {"request": request.headers}
+        'index.html', {"request": request.headers, "user_obj": user_obj}
     )

@@ -42,6 +42,7 @@ def verify_access_token(token: str, credentials_exception):
 
 
 # def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+# test for cookie-based auth instead of oauth2
 def get_current_user(Authorization: Annotated[str, Cookie()] , db: Session = Depends(get_db)):
     token = Authorization.split(' ')[1]
     print(token)
@@ -57,7 +58,6 @@ def get_current_user(Authorization: Annotated[str, Cookie()] , db: Session = Dep
 def verify_email_and_pass(current_email, current_password, correct_user, correct_pass):
     current_email_bytes = current_email
     correct_email_bytes = correct_user
-    # correct_username_bytes = b"stanleyjobson"
 
     is_correct_email = secrets.compare_digest(
         current_email_bytes, correct_email_bytes
@@ -79,33 +79,33 @@ def verify_email_and_pass(current_email, current_password, correct_user, correct
     # )
     return is_correct_email and is_correct_password
 
-def get_current_user_simple(
-    credentials: Annotated[HTTPBasicCredentials, Depends(security)],
-    db: Session = Depends(get_db)
-):
-    user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.email == credentials.email).first()
 
-    current_email_bytes = credentials.username.encode("utf8")
-    correct_email_bytes = user_obj.email
-    # correct_username_bytes = b"stanleyjobson"
+# def get_current_user_simple(
+#     credentials: Annotated[HTTPBasicCredentials, Depends(security)],
+#     db: Session = Depends(get_db)
+# ):
+#     user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.email == credentials.email).first()
 
-    is_correct_email = secrets.compare_digest(
-        current_email_bytes, correct_email_bytes
-    )
+#     current_email_bytes = credentials.username.encode("utf8")
+#     correct_email_bytes = user_obj.email
+
+#     is_correct_email = secrets.compare_digest(
+#         current_email_bytes, correct_email_bytes
+#     )
 
 
-    current_password_hash = utils.get_password_hash(credentials.password)
+#     current_password_hash = utils.get_password_hash(credentials.password)
 
-    correct_password_hash = user_obj.password
+#     correct_password_hash = user_obj.password
 
-    is_correct_password = secrets.compare_digest(
-        current_password_hash, correct_password_hash
-    )
-    credentials_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+#     is_correct_password = secrets.compare_digest(
+#         current_password_hash, correct_password_hash
+#     )
+#     credentials_exception = HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Could not validate credentials",
+#             headers={"WWW-Authenticate": "Bearer"},
+#         )
     # token_data = verify_access_token(token, credentials_exception)
     # return user_obj
-    return is_correct_email and is_correct_password
+    # return is_correct_email and is_correct_password

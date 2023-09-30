@@ -19,6 +19,13 @@
     {% endblock %}
   </head>
   <body>
+    <ul class="nav navbar-nav navbar-right">
+    {% if user_obj %}
+    <li><a href="">Log Out {{user_obj.email}}</a></li>
+    {% else %}
+    <li><a href="">Log In</a></li>
+    {% endif %}
+    </ul>
     {% block body %}
     <div>
       <h2>Business Data Architecture</h2>

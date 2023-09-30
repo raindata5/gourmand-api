@@ -26,13 +26,39 @@ import requests
 
 from fastapi_login import LoginManager
 from gourmandapiapp.config import settings
+from fastapi_login.exceptions import InvalidCredentialsException
 
 templates = Jinja2Templates(directory="gourmandapiapp/templates")
 security = HTTPBasic()
 
 router = APIRouter(tags=['token'])
 
-manager = LoginManager(settings.SECRET_KEY, token_url='/token')
+# manager = LoginManager(settings.SECRET_KEY, token_url='/token2')
+
+
+# @manager.user_loader()
+# def load_user(
+#     email: str,
+#     db: Session = Depends(get_db)
+# ):
+#     user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.email == email).first()
+#     return user_obj
+
+# @router.post('/token2')
+# async def login(login_form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+#     fetched_user = load_user(login_form_data.username)
+#     if not fetched_user:
+#         raise InvalidCredentialsException
+#     verify_pass = utils.verification(login_form_data.password, fetched_user.password)
+#     if not verify_pass:
+#         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Incorrect username or password")
+#     token = manager.create_access_token(data={"userid": fetched_user.userid})
+#     return {"access_token": token, "token_type": "bearer"}
+
+
+
+def exc_handler(request, exc):
+    return RedirectResponse(url='/login')
 
 @router.post('/token')
 async def login(login_form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -44,9 +70,6 @@ async def login(login_form_data: OAuth2PasswordRequestForm = Depends(), db: Sess
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Incorrect username or password")
     token = oauth2.create_access_token(user_data= {"userid": fetched_user.userid})
     return {"access_token": token, "token_type": "bearer"}
-
-# def load_user():
-#     user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.email == email).first()
 
 @router.get('/login')
 def simple_login(request: Request):
@@ -93,9 +116,6 @@ def simple_login(
         }
     )
     res_json = res.json()
-    # response.set_cookie(key="Authorization", value=res_json["token_type"].title() + ' ' + res_json["access_token"])
-    # print(vars(request))
-    # print(res.json())
     redirect_res = RedirectResponse(
         url="/",
         status_code=303,
