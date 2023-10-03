@@ -38,6 +38,7 @@ email-validator = "*"
 gunicorn = "*"
 starlette = "*"
 fastapi-login = "*"
+argon2-cffi = "*"
 
 [dev-packages]
 

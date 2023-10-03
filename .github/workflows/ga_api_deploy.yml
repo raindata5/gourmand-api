@@ -107,6 +107,7 @@ jobs:
           password: ${{ secrets.UBUNTU_CONTRIBUTOR_PASS }}
           script: |
             cd gourmand-api/
+            git fetch
             git pull 
             # seems this cmd is not needed
             gourmand-api-venv/bin/docker-compose down 
