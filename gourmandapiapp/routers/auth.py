@@ -58,17 +58,18 @@ router = APIRouter(tags=['token'])
 
 
 def exc_handler(request, exc):
-    return RedirectResponse(url='/login')
+    return RedirectResponse(url='/login', status_code=303)
 
 @router.post('/token')
-async def login(login_form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login_token(remember_me: Annotated[bool, Form()] = False, login_form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     fetched_user = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.email == login_form_data.username).first()
     if not fetched_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Incorrect username or password")
     verify_pass = utils.verification(login_form_data.password, fetched_user.password)
     if not verify_pass:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Incorrect username or password")
-    token = oauth2.create_access_token(user_data= {"userid": fetched_user.userid})
+    print("remember_me processed in token")
+    token = oauth2.create_access_token(user_data= {"userid": fetched_user.userid, 'remember_me': remember_me})
     return {"access_token": token, "token_type": "bearer"}
 
 @router.get('/login')
@@ -86,10 +87,10 @@ def simple_login(
     response: Response,
     email: Annotated[str, Form(title="Your email you signed up with")],
     password: Annotated[str, Form(title="The Password you signed up with")],
+    remember_me: Annotated[bool, Form()] = False,
     db: Session = Depends(get_db)
 ):
     user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.email == email).first()
-
 
     result = oauth2.verify_email_and_pass(
         current_email=email,
@@ -97,6 +98,7 @@ def simple_login(
         correct_user=user_obj.email,
         correct_pass=user_obj.password
     )
+    print(result)
     if not result:
         # return RedirectResponse(
         #     url="/login",
@@ -107,14 +109,15 @@ def simple_login(
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Basic"},
         )
-    # print(request.get("referer", ""))
     res = requests.post(
         request.headers.get("origin", "ronald") + "/token",
         data={
             "username":email,
-            "password": password
+            "password": password,
+            "remember_me": remember_me,
         }
     )
+    print(res)
     res_json = res.json()
     redirect_res = RedirectResponse(
         url="/",

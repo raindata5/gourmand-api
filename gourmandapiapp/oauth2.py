@@ -23,7 +23,10 @@ security = HTTPBasic()
 
 def create_access_token(user_data: dict ):
     to_encode = user_data.copy()
-    token_expiration = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    minutes_offset=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    if to_encode.get("remember_me", False):
+        minutes_offset = 5
+    token_expiration = datetime.utcnow() + timedelta(minutes=minutes_offset)
     to_encode.update({"exp": token_expiration})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt

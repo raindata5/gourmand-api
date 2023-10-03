@@ -1,8 +1,12 @@
 from datetime import datetime
 import json
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, List
+from typing import Optional, List, Union, Annotated
 from email_validator import validate_email
+from fastapi.security import (
+    OAuth2PasswordRequestForm,
+)
+from fastapi.param_functions import Form
 
 class UserLoginSchema(BaseModel):
     email: EmailStr
@@ -45,6 +49,10 @@ class PullDataSchema(BaseModel):
     offset: Optional[int] = Field(0, title=" the desired amount of results passed over must be between 0 and 50", ge = 0, le=50 )
     keyword: Optional[str] = Field('', max_length=100 )
     sort: Optional[str] = Field('businessname', max_length=100 )
+
+# class OAuth2PasswordRequestFormCustom(OAuth2PasswordRequestForm):
+    
+   
 
 # converts model object into a python dictionary or into a json string through parameter
 def dict_request(orm_model, inc_json_dump=False):
