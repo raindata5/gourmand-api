@@ -58,6 +58,7 @@ router = APIRouter(tags=['token'])
 
 
 def exc_handler(request, exc):
+    print(request.headers)
     return RedirectResponse(url='/login', status_code=303)
 
 @router.post('/token')
@@ -68,7 +69,6 @@ async def login_token(remember_me: Annotated[bool, Form()] = False, login_form_d
     verify_pass = utils.verification(login_form_data.password, fetched_user.password)
     if not verify_pass:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Incorrect username or password")
-    print("remember_me processed in token")
     token = oauth2.create_access_token(user_data= {"userid": fetched_user.userid, 'remember_me': remember_me})
     return {"access_token": token, "token_type": "bearer"}
 
@@ -98,7 +98,6 @@ def simple_login(
         correct_user=user_obj.email,
         correct_pass=user_obj.password
     )
-    print(result)
     if not result:
         # return RedirectResponse(
         #     url="/login",
@@ -117,7 +116,6 @@ def simple_login(
             "remember_me": remember_me,
         }
     )
-    print(res)
     res_json = res.json()
     redirect_res = RedirectResponse(
         url="/",

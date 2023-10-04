@@ -18,6 +18,6 @@ def verification(plain_password, hashed_password):
             if algo.verify(plain_password,hashed_password):
                 return True
         except (UnknownHashError, ValueError) as ex:
-            print(f'{ex}:Reverting to bcrypto algo')
-            break
+            print(f'{ex}:Reverting to bcrypt algo')
+            continue
     return False

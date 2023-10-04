@@ -31,24 +31,44 @@ def create_access_token(user_data: dict ):
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
-def verify_access_token(token: str, credentials_exception):
+def verify_access_token(token: str, credentials_exception, strict=True):
+    userid = None
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
     
         userid: str = payload.get("userid")
-        if not userid:
-            raise credentials_exception             
         token_data = schemas.TokenData(userid=userid)
+
     except JWTError as e:
-        raise credentials_exception
+        print(f"{userid} and {strict}")
+        if not userid and strict:
+            raise credentials_exception     
+        elif not userid and strict == False:
+            return None
     return token_data
 
 
 # def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
 # test for cookie-based auth instead of oauth2
-def get_current_user(Authorization: Annotated[str, Cookie()] , db: Session = Depends(get_db)):
+def get_current_user_lax(Authorization: Annotated[str, Cookie()] , db: Session = Depends(get_db)):
     token = Authorization.split(' ')[1]
-    print(token)
+    # credentials_exception = HTTPException(
+    #         status_code=status.HTTP_401_UNAUTHORIZED,
+    #         detail="Could not validate credentials",
+    #         headers={"WWW-Authenticate": "Bearer"},
+    #     )
+    # credentials_exception = ValueError()
+    token_data = verify_access_token(token, credentials_exception=None, strict=False)
+
+    if not token_data:
+        return models.AuthUserModelORM(userid="Guest")
+
+
+    user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.userid == token_data.userid).first()
+    return user_obj
+
+def get_current_user_strict(Authorization: Annotated[str, Cookie()] , db: Session = Depends(get_db)):
+    token = Authorization.split(' ')[1]
     credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
@@ -59,8 +79,8 @@ def get_current_user(Authorization: Annotated[str, Cookie()] , db: Session = Dep
     return user_obj
 
 def verify_email_and_pass(current_email, current_password, correct_user, correct_pass):
-    current_email_bytes = current_email
-    correct_email_bytes = correct_user
+    current_email_bytes = bytes(current_email, 'utf-8')
+    correct_email_bytes = bytes(correct_user, 'utf-8')
 
     is_correct_email = secrets.compare_digest(
         current_email_bytes, correct_email_bytes

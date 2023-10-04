@@ -6,11 +6,16 @@
     {% endblock %}
 </head>
   <body>
+    {% block nav_bar %}
+
+    {% endblock %}
     {% block body %}
     <div>
-        <p>
-            Login Page
-        </p>
+        <h1>
+          Login Page
+
+        </h1>
+        
     </div>
     <form class="form-horizontal" method="post" action="/login">
       <div class="form-group">

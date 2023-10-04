@@ -18,14 +18,18 @@
     <title>{% block title %}{% endblock %} - Gourmand</title>
     {% endblock %}
   </head>
+  
   <body>
+    {% block nav_bar %}
     <ul class="nav navbar-nav navbar-right">
-    {% if user_obj %}
-    <li><a href="">Log Out {{user_obj.email}}</a></li>
-    {% else %}
-    <li><a href="/login">Log In</a></li>
-    {% endif %}
+      {% if user_obj.email %}
+      <li><a href="/login">Log Out {{user_obj.email}}</a></li>
+      {% else %}
+      <li><a href="/login">Log In, {{user_obj.userid}}</a></li>
+      {% endif %}
     </ul>
+    {% endblock %}
+
     {% block body %}
     <div>
       <h2>Business Data Architecture</h2>

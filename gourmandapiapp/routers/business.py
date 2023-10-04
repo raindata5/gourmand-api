@@ -52,9 +52,9 @@ async def get_businesses(query_data: schemas.PullDataSchema = schemas.PullDataSc
     return businesses
 
 @router.post('/')
-async def post_business( db: Session = Depends(get_db), user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user)):
+async def post_business( db: Session = Depends(get_db), user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_strict)):
     return {"result": "business inserted"}
 
 @router.put('/')
-async def update_business( db: Session = Depends(get_db), user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user)):
+async def update_business( db: Session = Depends(get_db), user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_strict)):
     return {"result": f"business updated by {user_obj.userid}"}
