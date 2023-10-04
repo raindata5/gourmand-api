@@ -50,7 +50,7 @@ def verify_access_token(token: str, credentials_exception, strict=True):
 
 # def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
 # test for cookie-based auth instead of oauth2
-def get_current_user_lax(Authorization: Annotated[str, Cookie()] , db: Session = Depends(get_db)):
+def get_current_user_lax(Authorization: Annotated[str, Cookie()] = 'Bearer default' , db: Session = Depends(get_db)):
     token = Authorization.split(' ')[1]
     # credentials_exception = HTTPException(
     #         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -67,7 +67,7 @@ def get_current_user_lax(Authorization: Annotated[str, Cookie()] , db: Session =
     user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.userid == token_data.userid).first()
     return user_obj
 
-def get_current_user_strict(Authorization: Annotated[str, Cookie()] , db: Session = Depends(get_db)):
+def get_current_user_strict(Authorization: Annotated[str, Cookie()] = 'Bearer default', db: Session = Depends(get_db)):
     token = Authorization.split(' ')[1]
     credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

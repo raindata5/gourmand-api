@@ -8,7 +8,7 @@ from fastapi.security import (
 )
 from fastapi.param_functions import Form
 
-class UserLoginSchema(BaseModel):
+class CreateNewUserSchema(BaseModel):
     email: EmailStr
     password: str
 

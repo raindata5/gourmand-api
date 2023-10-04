@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../static/index.css" />
     <link
     rel="icon"
     type="image/x-icon"
@@ -21,13 +22,27 @@
   
   <body>
     {% block nav_bar %}
-    <ul class="nav navbar-nav navbar-right">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-between">
+
+      <a class="navbar-brand" href="https://github.com/raindata5/gourmand-data-pipelines">
+        <img src="https://th.bing.com/th/id/OIG.rzvxuaYqKTda_jBDjOY.?pid=ImgGn" width="50" height="50" class="d-inline-block align-top" alt="An AI generated image related to Gourmand">
+        Gourmand
+      </a>
+
+    <ul class="nav navbar-nav navbar-right mr-auto">
       {% if user_obj.email %}
-      <li><a href="/login">Log Out {{user_obj.email}}</a></li>
+      <li class="nav-item">
+        <a class="nav-link mr-sm-2" href="/login">Log Out {{user_obj.email}}</a>
+      </li>
       {% else %}
-      <li><a href="/login">Log In, {{user_obj.userid}}</a></li>
+      <li class="nav-item">
+        <a class="nav-link mr-sm-2" href="/login">Log In, {{user_obj.userid}}</a>
+      </li>
       {% endif %}
+
     </ul>
+
+    </nav>
     {% endblock %}
 
     {% block body %}
@@ -44,7 +59,11 @@
         <a href="#contact">Contact</a> •
       </p>
       <div>
-        <h3>Overview</h3>
+        <h3>          
+          <a id="overview">
+            Overview
+          </a>
+        </h3>
         <p>
           This project looks to leverage multiple tools to create a data
           architecture that could help serve as the backend for a business and
@@ -54,8 +73,43 @@
           to run some analyses, the project has evolved to include a number of
           supplementary technologies features partially due to problems that
           arose out of the blue. Fortunately while there may not always be meer
-          solutions to everything...
+          solutions to everything there's always a nice trade-off i.e. compromise.
+          To begin we'll extract data from 3 sources ,namely, the Census API , a web page via webscrape, and the Yelp API and push this to a Postgres database.
+          Initially this will be used to simulate a source db using dbt to normalize the data as would be expected in most OLTP dbs.
+          With that setup data from yelp will be pulled daily and inserted into this source db.
+          From there the data will be extracted to an S3 Bucket which will serve as our de-facto data lake.
+          Subsequently the data will be pulled from the S3 Bucket and ingested into some staging tables in Google Big Query ,that will serve as our data warehouse, where we'll make use of dbt to denormalize the data into a Snowflake Model.
+          Once this is done some simple data validation checks will be carried out and we'll log these results and route them back to our Postgres db to create some metrics with them and send notifications via flask in the event of any issues.
+          To orchestrate our recurring data workflow we'll use Apache Airflow with a Postgres Instance that is ran in a Docker container.
+          <blockquote class="blockquote">
+              <p>
+                Note: Now the code has been updated to run Apache Airflow completely 
+                in Docker with the CeleryExecutor 😀. So now this provides more scalibility 
+                if we plan on working with a multi-node setup. I just have yet to update the 
+                directions in this code.
+              </p>
+          </blockquote>
+          Also using the FastAPI framework we'll be able to create an API on top of our source 
+          database with Redis to cache certain responses.
+          <blockquote class="blockquote">
+            <p>
+              Note: The API has been fully dockerized and integrated as such with the CI/CD pipeline.
+            </p>
+          </blockquote>
+          Since our goal is ultimately run some analyses we will then look to carry this out.
+          There are also other plans to extend this project which can be seen in the following
+          data architecture diagram.
         </p>
+        <hr />
+        <div>
+          <h2>
+          <a id="data-architecture-diagram">
+              Data Architecture Diagram
+            </a>
+            </h2>
+            <img src="https://github.com/raindata5/gourmand-data-pipelines/raw/master/images/data-pipeline-architecture.drawio.png">
+            
+        </div>
       </div>
       <!-- <p>{{request}}</p> -->
     </div>

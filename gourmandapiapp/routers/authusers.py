@@ -11,7 +11,7 @@ router = APIRouter(prefix= '/authusers',
 
 
 @router.post('/', status_code=status.HTTP_201_CREATED, response_model=schemas.UserCreationResponseSchema)
-async def create_user(user_data: schemas.UserLoginSchema,db: Session = Depends(get_db)):
+async def create_user(user_data: schemas.CreateNewUserSchema,db: Session = Depends(get_db)):
     fetched_user = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.email == user_data.email).first()
     if fetched_user:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="This email is already taken")
