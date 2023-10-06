@@ -9,8 +9,13 @@ from fastapi.security import (
 from fastapi.param_functions import Form
 
 class CreateNewUserSchema(BaseModel):
-    email: EmailStr
-    password: str
+    email_input: EmailStr
+    password_input: Field(
+        description='Passwords must match.'
+    )
+    password_input_2: Field(
+        description='Confirm password'
+    )
 
 class UserCreationResponseSchema(BaseModel):
     email: EmailStr

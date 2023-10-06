@@ -2,38 +2,40 @@
 
   <head>
     {% block head %}
-    <title>{% block title %}{% endblock %} Gourmand - Login</title>
+    <title> Gourmand - Login</title>
     {% endblock %}
 </head>
-  <body>
-    {% block nav_bar %}
 
+  <body>
+    {% block nav_bar_custom %}
     {% endblock %}
+
     {% block body %}
     <div>
-        <h1>
-          Login Page
+      <h1>
+        Login Page
+      </h1>
+    </div>
 
-        </h1>
-        
+  <form class="form-horizontal" method="post" action="/login">
+
+    <div class="form-group">
+      <label for="email">Enter your email: </label>
+      <input type="text" name="email">
     </div>
-    <form class="form-horizontal" method="post" action="/login">
-      <div class="form-group">
-          <label for="email">Enter your email: </label>
-          <input type="text" name="email">
-      </div>
-      <div class="form-group">
-          <label for="password">Enter your password: </label>
-          <input type="text" name="password">
-      </div>
-      <div class="form-group">
-        <input type="checkbox" name="remember_me" value="True">
-        <label for="remember_me">Remember me: </label>
-      </div>
-      <div class="form-group">
-        <input type="submit" value="Login">
+    <div class="form-group">
+      <label for="password">Enter your password: </label>
+      <input type="password" name="password">
     </div>
+    <div class="form-group">
+      <input type="checkbox" name="remember_me" value="True">
+      <label for="remember_me">Remember me </label>
+    </div>
+    <div class="form-group">
+      <input type="submit" value="Login">
+    </div>
+
   </form>
     {% endblock %}
   </body>
-</html>
+

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../static/index.css" />
+    <link rel="stylesheet" href="https://github.com/raindata5/gourmand-api/blob/master/gourmandapiapp/static/index.css"/>
     <link
     rel="icon"
     type="image/x-icon"
@@ -16,18 +16,18 @@
     crossorigin="anonymous"
     />
     {% block head %}
-    <title>{% block title %}{% endblock %} - Gourmand</title>
+    <title> Gourmand - Home </title>
     {% endblock %}
   </head>
   
   <body>
-    {% block nav_bar %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-between">
 
       <a class="navbar-brand" href="https://github.com/raindata5/gourmand-data-pipelines">
         <img src="https://th.bing.com/th/id/OIG.rzvxuaYqKTda_jBDjOY.?pid=ImgGn" width="50" height="50" class="d-inline-block align-top" alt="An AI generated image related to Gourmand">
         Gourmand
       </a>
+    {% block nav_bar_custom %}
 
     <ul class="nav navbar-nav navbar-right mr-auto">
       {% if user_obj.email %}
@@ -41,9 +41,9 @@
       {% endif %}
 
     </ul>
+    {% endblock %}
 
     </nav>
-    {% endblock %}
 
     {% block body %}
     <div>

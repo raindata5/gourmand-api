@@ -73,11 +73,11 @@ async def login_token(remember_me: Annotated[bool, Form()] = False, login_form_d
     return {"access_token": token, "token_type": "bearer"}
 
 @router.get('/login')
-def simple_login(request: Request):
+def simple_login(request: Request,):
     return templates.TemplateResponse(
         "login.html",
         context={
-            "request": request
+            "request": request,
         }
     )
 

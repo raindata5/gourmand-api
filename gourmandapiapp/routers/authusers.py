@@ -1,24 +1,53 @@
-from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from gourmandapiapp import models, schemas, utils
 from ..db import get_db
-from typing import Optional
 from sqlalchemy.sql.expression import text
 from sqlalchemy import desc
-
-router = APIRouter(prefix= '/authusers',
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    status,
+    Request,
+    Form,
+    Response
+)
+from fastapi.templating import Jinja2Templates
+from typing import (
+    Optional,
+    Annotated
+)
+from fastapi.responses import RedirectResponse
+templates = Jinja2Templates(directory="gourmandapiapp/templates")
+router = APIRouter(prefix= '/auth',
                     tags=['authusers'])
 
 
-@router.post('/', status_code=status.HTTP_201_CREATED, response_model=schemas.UserCreationResponseSchema)
+@router.get('/register')
+def get_create_user(request: Request,):
+    return templates.TemplateResponse(
+        "auth_register.html",
+        context={
+            "request": request,
+        }
+    )
+@router.post('/register', status_code=status.HTTP_201_CREATED, response_model=schemas.UserCreationResponseSchema)
 async def create_user(user_data: schemas.CreateNewUserSchema,db: Session = Depends(get_db)):
-    fetched_user = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.email == user_data.email).first()
+    fetched_user = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.email == user_data.email_input).first()
     if fetched_user:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="This email is already taken")
-    user_data.password = utils.get_password_hash(user_data.password)
-    user_obj = models.AuthUserModelORM(**user_data.dict())
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="This email is already taken.")
+    elif user_data.password_input != user_data.password_input_2:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="The passwords provided do not match.")
+    password_input_hash = utils.get_password_hash(user_data.password_input)
+    user_obj = models.AuthUserModelORM(
+        email=user_data.email_input,
+        password=password_input_hash
+    )
     db.add(user_obj)
     db.commit()
     db.refresh(user_obj)
-    return user_obj
+    return RedirectResponse(
+        url='/login',
+        status_code=303
+    )
 
