@@ -12,6 +12,7 @@ from fastapi import (
     Form,
     Response
 )
+from pydantic import EmailStr
 from fastapi.templating import Jinja2Templates
 from typing import (
     Optional,
@@ -31,8 +32,20 @@ def get_create_user(request: Request,):
             "request": request,
         }
     )
-@router.post('/register', status_code=status.HTTP_201_CREATED, response_model=schemas.UserCreationResponseSchema)
-async def create_user(user_data: schemas.CreateNewUserSchema,db: Session = Depends(get_db)):
+@router.post('/register', status_code=status.HTTP_201_CREATED)
+async def create_user(
+    # user_data: schemas.CreateNewUserSchema,db: Session = Depends(get_db)
+    email_input: Annotated[str, Form()],
+    password_input: Annotated[str, Form(description='Passwords must match.')],
+    password_input_2: Annotated[str, Form(description="The password you signed up with")],
+    db: Session = Depends(get_db)
+):
+    user_data_dict = {
+        "email_input": email_input,
+        "password_input": password_input,
+        "password_input_2": password_input_2,
+    }
+    user_data = schemas.CreateNewUserSchema(**user_data_dict)
     fetched_user = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.email == user_data.email_input).first()
     if fetched_user:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="This email is already taken.")

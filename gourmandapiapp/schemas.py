@@ -6,14 +6,18 @@ from email_validator import validate_email
 from fastapi.security import (
     OAuth2PasswordRequestForm,
 )
-from fastapi.param_functions import Form
-
-class CreateNewUserSchema(BaseModel):
+from dataclasses import dataclass
+# from fastapi.param_functions import Form
+from fastapi import (
+    Form,
+)
+@dataclass
+class CreateNewUserSchema:
     email_input: EmailStr
-    password_input: Field(
+    password_input: str = Form(
         description='Passwords must match.'
     )
-    password_input_2: Field(
+    password_input_2: str = Form(
         description='Confirm password'
     )
 
