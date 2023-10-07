@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from gourmandapiapp import models, schemas, utils
+from gourmandapiapp import models, schemas, utils, oauth2
 from ..db import get_db
 from sqlalchemy.sql.expression import text
 from sqlalchemy import desc
@@ -25,19 +25,20 @@ router = APIRouter(prefix= '/auth',
 
 
 @router.get('/register')
-def get_create_user(request: Request,):
+def get_create_user(request: Request, user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_lax)):
     return templates.TemplateResponse(
         "auth_register.html",
         context={
             "request": request,
+            "user_obj": user_obj,
         }
     )
 @router.post('/register', status_code=status.HTTP_201_CREATED)
 async def create_user(
-    # user_data: schemas.CreateNewUserSchema,db: Session = Depends(get_db)
-    email_input: Annotated[str, Form()],
+    # user_data: schemas.CreateNewUserSchema,
+    email_input: Annotated[EmailStr, Form(min_length=1, max_length=64)],
     password_input: Annotated[str, Form(description='Passwords must match.')],
-    password_input_2: Annotated[str, Form(description="The password you signed up with")],
+    password_input_2: Annotated[str, Form(description='Confirm password')],
     db: Session = Depends(get_db)
 ):
     user_data_dict = {

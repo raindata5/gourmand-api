@@ -11,15 +11,13 @@ from dataclasses import dataclass
 from fastapi import (
     Form,
 )
+
 @dataclass
 class CreateNewUserSchema:
-    email_input: EmailStr
-    password_input: str = Form(
-        description='Passwords must match.'
-    )
-    password_input_2: str = Form(
-        description='Confirm password'
-    )
+    email_input: Annotated[EmailStr, Form()]
+    # email_input: Annotated[str, Form()]
+    password_input: Annotated[str, Form(description='Passwords must match.')]
+    password_input_2: Annotated[str, Form(description='Confirm password')]
 
 class UserCreationResponseSchema(BaseModel):
     email: EmailStr
