@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from gourmandapiapp import models, schemas, utils, oauth2
 from ..db import get_db
 from typing import (
-    Optional,
+    Union,
     Annotated
 )
 from fastapi.security import (
@@ -57,9 +57,10 @@ router = APIRouter(tags=['token'])
 
 
 
-def exc_handler(request, exc):
-    print(request.headers)
-    return RedirectResponse(url='/login', status_code=303)
+def exc_handler(request: Request, exc):
+    print(request.url)
+    print(request.url.path)
+    return RedirectResponse(url=f'/login?return_url={request.url.path}', status_code=303, headers={"return_url": request.url.path})
 
 @router.post('/token')
 async def login_token(remember_me: Annotated[bool, Form()] = False, login_form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -73,13 +74,25 @@ async def login_token(remember_me: Annotated[bool, Form()] = False, login_form_d
     return {"access_token": token, "token_type": "bearer"}
 
 @router.get('/login')
-def simple_login(request: Request,):
-    return templates.TemplateResponse(
+def simple_login(
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db),
+    return_url: str = ''
+):
+    default_return_url = return_url if return_url.startswith('/') else '/'
+    template_response = templates.TemplateResponse(
         "login.html",
         context={
             "request": request,
+            "return_url": default_return_url
         }
     )
+    # template_response.
+    # from urllib.parse import urlencode
+    # urlencode(q_params).encode('utf-8')
+    return template_response
+    
 
 @router.post('/login')
 def simple_login(
@@ -88,10 +101,11 @@ def simple_login(
     email: Annotated[str, Form(title="Your email you signed up with")],
     password: Annotated[str, Form(title="The Password you signed up with")],
     remember_me: Annotated[bool, Form()] = False,
+    return_url: str = '',
     db: Session = Depends(get_db)
 ):
     user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.email == email).first()
-
+    print(return_url)
     result = oauth2.verify_email_and_pass(
         current_email=email,
         current_password=password,
@@ -99,10 +113,6 @@ def simple_login(
         correct_pass=user_obj.password
     )
     if not result:
-        # return RedirectResponse(
-        #     url="/login",
-        #     status_code=404
-        # )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -118,7 +128,7 @@ def simple_login(
     )
     res_json = res.json()
     redirect_res = RedirectResponse(
-        url="/",
+        url=return_url,
         status_code=303,
     )
     redirect_res.set_cookie(key="Authorization", value=res_json["token_type"].title() + ' ' + res_json["access_token"])

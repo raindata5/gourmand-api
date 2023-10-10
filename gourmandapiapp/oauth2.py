@@ -14,7 +14,7 @@ from sqlalchemy.sql.functions import user
 from . import models
 from .db import get_db
 from . import schemas, utils
-from fastapi import HTTPException, status, Cookie
+from fastapi import HTTPException, status, Cookie, Request
 from gourmandapiapp.config import settings
 from typing import Annotated
 
@@ -52,12 +52,6 @@ def verify_access_token(token: str, credentials_exception, strict=True):
 # test for cookie-based auth instead of oauth2
 def get_current_user_lax(Authorization: Annotated[str, Cookie()] = 'Bearer default' , db: Session = Depends(get_db)):
     token = Authorization.split(' ')[1]
-    # credentials_exception = HTTPException(
-    #         status_code=status.HTTP_401_UNAUTHORIZED,
-    #         detail="Could not validate credentials",
-    #         headers={"WWW-Authenticate": "Bearer"},
-    #     )
-    # credentials_exception = ValueError()
     token_data = verify_access_token(token, credentials_exception=None, strict=False)
 
     if not token_data:
@@ -67,12 +61,14 @@ def get_current_user_lax(Authorization: Annotated[str, Cookie()] = 'Bearer defau
     user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.userid == token_data.userid).first()
     return user_obj
 
-def get_current_user_strict(Authorization: Annotated[str, Cookie()] = 'Bearer default', db: Session = Depends(get_db)):
+def get_current_user_strict(request: Request, Authorization: Annotated[str, Cookie()] = 'Bearer default', db: Session = Depends(get_db)):
     token = Authorization.split(' ')[1]
+    # print(request.url.path)
+    # print(request.scope)
     credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
+            headers={"WWW-Authenticate": "Bearer",},
         )
     token_data = verify_access_token(token, credentials_exception)
     user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.userid == token_data.userid).first()
