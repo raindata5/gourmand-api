@@ -42,7 +42,7 @@ def index(request: Request, user_obj: models.AuthUserModelORM = Depends(oauth2.g
 # test endpoint for getting a token from a cookie
 @app.get("/index_secure", )
 def index(request: Request,  db: Session = Depends(get_db), user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_strict)):
-    print(request.headers)
+    # print(request.headers)
     return templates.TemplateResponse(
         'index.html', {"request": request.headers, "user_obj": user_obj}
     )

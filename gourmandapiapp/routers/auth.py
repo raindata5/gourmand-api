@@ -23,10 +23,13 @@ from fastapi.security import (
 )
 from fastapi.responses import RedirectResponse
 import requests
-
 from fastapi_login import LoginManager
 from gourmandapiapp.config import settings
 from fastapi_login.exceptions import InvalidCredentialsException
+from urllib.parse import (
+    urlencode,
+    unquote
+)
 
 templates = Jinja2Templates(directory="gourmandapiapp/templates")
 security = HTTPBasic()
@@ -58,9 +61,8 @@ router = APIRouter(tags=['token'])
 
 
 def exc_handler(request: Request, exc):
-    print(request.url)
-    print(request.url.path)
-    return RedirectResponse(url=f'/login?return_url={request.url.path}', status_code=303, headers={"return_url": request.url.path})
+    query_params = urlencode(dict(return_url=request.url.path))
+    return RedirectResponse(url=f'/login?{query_params}', status_code=303, headers={"return_url": request.url.path})
 
 @router.post('/token')
 async def login_token(remember_me: Annotated[bool, Form()] = False, login_form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -80,7 +82,7 @@ def simple_login(
     db: Session = Depends(get_db),
     return_url: str = ''
 ):
-    default_return_url = return_url if return_url.startswith('/') else '/'
+    default_return_url = urlencode(dict(return_url=return_url)) if return_url.startswith('/') else urlencode(dict(return_url='/'))
     template_response = templates.TemplateResponse(
         "login.html",
         context={
@@ -88,9 +90,6 @@ def simple_login(
             "return_url": default_return_url
         }
     )
-    # template_response.
-    # from urllib.parse import urlencode
-    # urlencode(q_params).encode('utf-8')
     return template_response
     
 
@@ -105,7 +104,6 @@ def simple_login(
     db: Session = Depends(get_db)
 ):
     user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.email == email).first()
-    print(return_url)
     result = oauth2.verify_email_and_pass(
         current_email=email,
         current_password=password,
@@ -128,7 +126,7 @@ def simple_login(
     )
     res_json = res.json()
     redirect_res = RedirectResponse(
-        url=return_url,
+        url=unquote(return_url),
         status_code=303,
     )
     redirect_res.set_cookie(key="Authorization", value=res_json["token_type"].title() + ' ' + res_json["access_token"])
