@@ -52,7 +52,7 @@ jobs:
       - name: dependencies
         run: |
           pipenv install
-          pipenv install -r requirements.txt
+          # pipenv install -r requirements.txt
       - name: pytests
         run: |
           pipenv install pytest
