@@ -54,8 +54,9 @@ def run_migrations_offline():
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
         include_schemas = True,
-        include_name = include_name,
-        version_table_schema = "public"
+        # include_name = include_name,
+        version_table_schema = "_Production",
+        version_table='alembic_version'
     )
 
     with context.begin_transaction():
@@ -84,7 +85,12 @@ def run_migrations_online():
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            version_table_schema = "_Production",
+            include_name = include_name,
+            include_schemas=False,
+            # version_table='alembic_version_test'
         )
 
         with context.begin_transaction():

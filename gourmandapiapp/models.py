@@ -32,7 +32,8 @@ class BusinessHoldingModelORM(Base):
     __tablename__ = "businessholding"
     __table_args__ = {"schema": "_Production"}
     businessholdingid = Column(Integer, primary_key=True, nullable=False)
-    businessid = Column(Integer, ForeignKey("_Production.business.businessid", ondelete="CASCADE"), nullable=False)
+    # businessid = Column(Integer, ForeignKey("_Production.business.businessid", ondelete="CASCADE"), nullable=False)
+    businessid = Column(Integer, ForeignKey("business.businessid", ondelete="CASCADE"), nullable=False)
     businessrating = Column(Numeric(precision=2, scale=1), nullable=True)
     reviewcount = Column(Integer, nullable=True)
     closedate = Column(Date, nullable=False)
@@ -45,6 +46,7 @@ class AuthUserModelORM(Base):
     email = Column(String(60), unique=True, nullable=False)
     password = Column(String, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable = False, server_default=text('now()'))
+    # verified = Column(Boolean, nullable=False, default=False)
 
     @property
     def passy(self):
