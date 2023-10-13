@@ -1,38 +1,35 @@
 version: "3"
-services: 
-    gourmand-api:
-        # build: .
-        image: raindata5/gourmand-api:latest
-        ports: 
-            - 8000:8000
-        env_file:
-          - ./.env
-        volumes:
-          - ./:/gourmandapi
-        environment:
-          - NAME=Ronald
-    postgres:
-      image: postgres
-      env_file:
-          - ./.env
-      ports:
-          - 5435:5432
-      environment: 
-        - POSTGRES_PASSWORD=pg_oltp_api_password
-        - POSTGRES_DB=pg_oltp_api_db_test
-      volumes:
-        - gourmandapi-docker-db:/var/lib/postgresql/data
-    redis:
-      image: redis
-      volumes:
-        - gourmandapi-redis-db:/data
-      ports: 
-        - 6379:6379
+services:
+  gourmand-api:
+    # build: .
+    image: raindata5/gourmand-api:latest
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env
+    environment:
+      - NAME=Ronald
+  postgres:
+    image: postgres
+    env_file:
+      - ./.env
+    ports:
+      - 5435:5432
+    environment:
+      - POSTGRES_PASSWORD=pg_oltp_api_password
+      - POSTGRES_DB=pg_oltp_api_db_test
+    volumes:
+      - gourmandapi-docker-db:/var/lib/postgresql/data
+  redis:
+    image: redis
+    volumes:
+      - gourmandapi-redis-db:/data
+    ports:
+      - 6379:6379
 
-
-volumes: 
-    gourmandapi-docker-db:
-    gourmandapi-redis-db:
+volumes:
+  gourmandapi-docker-db:
+  gourmandapi-redis-db:
 secrets:
   POSTGRES_PASSWORD:
     file: p_pass.txt
