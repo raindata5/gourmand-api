@@ -74,6 +74,11 @@ def run_migrations_online():
         if type_ == "schema":
             # note this will not include the default schema
             return name in ["_Production"]
+        elif type_ == 'table':
+            return (
+                parent_names["schema_qualified_table_name"] in
+                target_metadata.tables
+            )
         else:
             return True
 
@@ -89,7 +94,7 @@ def run_migrations_online():
             target_metadata=target_metadata,
             version_table_schema = "_Production",
             include_name = include_name,
-            include_schemas=False,
+            include_schemas=True,
             # version_table='alembic_version_test'
         )
 
