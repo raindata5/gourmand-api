@@ -10,7 +10,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 class BusinessModelORM(Base):
     __tablename__ = "business"
-    # __table_args__ = {"schema": "_Production"}
     businessid = Column(Integer, primary_key=True, nullable=False)
     businessname = Column(String(150), nullable=False)
     chainname = Column(String(150), nullable=False)
@@ -50,18 +49,12 @@ class BusinessModelORM(Base):
         Index(
             "ix_business_chainname",
             "chainname",
-            # 'businessname',
-            # 'cityid', 
-            # 'countyid', 
-            # 'stateid', 
-            # 'paymentlevelid'
         ),
         {"schema": "_Production"}
     )
 
 class BusinessHoldingModelORM(Base):
     __tablename__ = "businessholding"
-    # __table_args__ = {"schema": "_Production"}
     businessholdingid = Column(Integer, primary_key=True, nullable=False)
     businessid = Column(Integer, ForeignKey("_Production.business.businessid", ondelete="CASCADE"), nullable=False)
     businessrating = Column(Numeric(precision=2, scale=1), nullable=True)
@@ -72,15 +65,10 @@ class BusinessHoldingModelORM(Base):
         Index(
             "ix_businessholding_businessid",
             "businessid",
-            # "businessrating",
-            # "reviewcount"
         ),
         Index(
             "ix_businessholding_closedate",
             "closedate",
-            # "businessrating",
-            # "reviewcount",
-            # "businessid"
         ),
         {"schema": "_Production"}
     )
