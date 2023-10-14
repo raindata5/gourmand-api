@@ -9,7 +9,8 @@ services:
     volumes:
       - ./:/gourmandapi
     environment:
-      - NAME=Ronald
+      - NAME=Ronald_staging
+      - GOURMAND_ENV=staging
     entrypoint: ["./docker_commands.sh"]
     networks:
       - g-api-network

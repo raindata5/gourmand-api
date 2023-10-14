@@ -39,12 +39,24 @@ def run_migrations_offline():
     script output.
 
     """
+
+    def include_name(name, type_, parent_names):
+        if type_ == "schema":
+            # note this will not include the default schema
+            return name in ["_Production"]
+        else:
+            return True
+
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        include_schemas = True,
+        # include_name = include_name,
+        version_table_schema = "_Production",
+        version_table='alembic_version'
     )
 
     with context.begin_transaction():
@@ -58,6 +70,18 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
+    def include_name(name, type_, parent_names):
+        if type_ == "schema":
+            # note this will not include the default schema
+            return name in ["_Production"]
+        elif type_ == 'table':
+            return (
+                parent_names["schema_qualified_table_name"] in
+                target_metadata.tables
+            )
+        else:
+            return True
+
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
@@ -66,7 +90,12 @@ def run_migrations_online():
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            version_table_schema = "_Production",
+            include_name = include_name,
+            include_schemas=True,
+            # version_table='alembic_version_test'
         )
 
         with context.begin_transaction():
