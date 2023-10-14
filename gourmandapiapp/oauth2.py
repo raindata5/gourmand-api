@@ -21,14 +21,28 @@ from typing import Annotated
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 security = HTTPBasic()
 
-def create_access_token(user_data: dict ):
+ACCESS_TOKEN_ARGS = {
+    "access_token_general": {
+        "remember_me_minutes_offset": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 2,
+        "expiration_offset_minutes": settings.ACCESS_TOKEN_EXPIRE_MINUTES,
+    } ,
+    "verification_token_general": {
+        "expiration_offset_minutes": settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    } ,
+}
+
+def create_access_token(user_data: dict, token_type: str = 'access_token_general' ):
     to_encode = user_data.copy()
-    minutes_offset=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    minutes_offset=ACCESS_TOKEN_ARGS[token_type]["expiration_offset_minutes"]
     if to_encode.get("remember_me", False):
-        minutes_offset = 5
+        minutes_offset=ACCESS_TOKEN_ARGS[token_type]["remember_me_minutes_offset"]
+
     token_expiration = datetime.utcnow() + timedelta(minutes=minutes_offset)
     to_encode.update({"exp": token_expiration})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    if token_type == "access_token_general":
+        encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    elif token_type == "verification_token_general":
+        encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
 def verify_access_token(token: str, credentials_exception, strict=True):

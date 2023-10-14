@@ -18,7 +18,10 @@ from typing import (
     Optional,
     Annotated
 )
+import logging
 from fastapi.responses import RedirectResponse
+
+logging.getLogger().setLevel(logging.INFO)
 templates = Jinja2Templates(directory="gourmandapiapp/templates")
 router = APIRouter(prefix= '/auth',
                     tags=['authusers'])
@@ -53,13 +56,20 @@ async def create_user(
     elif user_data.password_input != user_data.password_input_2:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="The passwords provided do not match.")
     password_input_hash = utils.get_password_hash(user_data.password_input)
-    user_obj = models.AuthUserModelORM(
+    user_obj_new = models.AuthUserModelORM(
         email=user_data.email_input,
         password=password_input_hash
     )
-    db.add(user_obj)
+    db.add(user_obj_new)
     db.commit()
-    db.refresh(user_obj)
+    db.refresh(user_obj_new)
+    
+    verification_token = oauth2.create_access_token(
+        user_data= {"userid": user_obj_new.userid}
+    ) 
+    token_data = oauth2.verify_access_token(verification_token, credentials_exception=None)
+    logging.info(f"Sending email to {user_obj_new.email} \n with the token: {verification_token} containing the userid: {token_data.userid} matched to userid: {user_obj_new.userid}")
+    
     return RedirectResponse(
         url='/login',
         status_code=303
