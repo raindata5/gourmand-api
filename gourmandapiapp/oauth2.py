@@ -21,7 +21,7 @@ from typing import Annotated
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 security = HTTPBasic()
 
-ACCESS_TOKEN_ARGS = {
+TOKEN_ARGS = {
     "access_token_general": {
         "remember_me_minutes_offset": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 2,
         "expiration_offset_minutes": settings.ACCESS_TOKEN_EXPIRE_MINUTES,
@@ -33,9 +33,9 @@ ACCESS_TOKEN_ARGS = {
 
 def create_access_token(user_data: dict, token_type: str = 'access_token_general' ):
     to_encode = user_data.copy()
-    minutes_offset=ACCESS_TOKEN_ARGS[token_type]["expiration_offset_minutes"]
+    minutes_offset=TOKEN_ARGS[token_type]["expiration_offset_minutes"]
     if to_encode.get("remember_me", False):
-        minutes_offset=ACCESS_TOKEN_ARGS[token_type]["remember_me_minutes_offset"]
+        minutes_offset=TOKEN_ARGS[token_type]["remember_me_minutes_offset"]
 
     token_expiration = datetime.utcnow() + timedelta(minutes=minutes_offset)
     to_encode.update({"exp": token_expiration})

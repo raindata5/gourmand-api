@@ -1,0 +1,13 @@
+Dear {{ user_obj.email }},
+
+Welcome to Gourmand!
+
+To confirm your account please click on the following link:
+
+{{ confirm_url }}
+
+Sincerely,
+
+The Gourmand Team
+
+Note: replies to this email address are not monitored.

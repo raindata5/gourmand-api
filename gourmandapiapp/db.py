@@ -6,6 +6,8 @@ import redis
 import os
 import logging
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.pg_oltp_api_user}:{settings.pg_oltp_api_password}@{settings.pg_oltp_api_host}/{settings.pg_oltp_api_db}"
 if os.environ.get("GOURMAND_ENV") == 'staging':
     SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.pg_oltp_api_user}:{settings.pg_oltp_api_password}@{settings.pg_oltp_api_host}/{settings.pg_oltp_api_db_test}"

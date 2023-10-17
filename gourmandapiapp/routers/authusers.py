@@ -65,7 +65,8 @@ async def create_user(
     db.refresh(user_obj_new)
     
     verification_token = oauth2.create_access_token(
-        user_data= {"userid": user_obj_new.userid}
+        user_data= {"userid": user_obj_new.userid},
+        token_type="verification_token_general"
     ) 
     token_data = oauth2.verify_access_token(verification_token, credentials_exception=None)
     logging.info(f"Sending email to {user_obj_new.email} \n with the token: {verification_token} containing the userid: {token_data.userid} matched to userid: {user_obj_new.userid}")
