@@ -38,7 +38,7 @@ def get_create_user(request: Request, user_obj: models.AuthUserModelORM = Depend
     )
 @router.post('/register', status_code=status.HTTP_201_CREATED)
 async def create_user(
-    # user_data: schemas.CreateNewUserSchema,
+    request: Request,
     email_input: Annotated[EmailStr, Form(min_length=1, max_length=64)],
     password_input: Annotated[str, Form(description='Passwords must match.')],
     password_input_2: Annotated[str, Form(description='Confirm password')],
@@ -64,15 +64,23 @@ async def create_user(
     db.commit()
     db.refresh(user_obj_new)
     
-    verification_token = oauth2.create_access_token(
+    verification_token = oauth2.create_token(
         user_data= {"userid": user_obj_new.userid},
         token_type="verification_token_general"
     ) 
-    token_data = oauth2.verify_access_token(verification_token, credentials_exception=None)
+    token_data = oauth2.verify_token(verification_token, credentials_exception=None)
     logging.info(f"Sending email to {user_obj_new.email} \n with the token: {verification_token} containing the userid: {token_data.userid} matched to userid: {user_obj_new.userid}")
-    
+    logging.info(f"Confirmation url: {request.url.path} or {request.base_url}/auth/confirm/{verification_token}")
     return RedirectResponse(
         url='/login',
         status_code=303
     )
 
+@router.get('/confirm/{verification_token}')
+def verify_user(
+    request: Request,
+    verification_token:str,
+    db: Session = Depends(get_db),
+    user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_strict)
+):
+    print(verification_token)

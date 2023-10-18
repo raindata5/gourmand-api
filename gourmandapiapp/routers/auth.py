@@ -30,6 +30,10 @@ from urllib.parse import (
     urlencode,
     unquote
 )
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 templates = Jinja2Templates(directory="gourmandapiapp/templates")
 security = HTTPBasic()
@@ -62,6 +66,10 @@ router = APIRouter(tags=['token'])
 
 def exc_handler(request: Request, exc):
     query_params = urlencode(dict(return_url=request.url.path))
+    logging.info(msg=f'{request.headers}')
+    logging.info(msg=f'{request.url}')
+    logging.info(msg=f'{request.base_url}')
+    logging.info(msg=f'{request.scope}')
     return RedirectResponse(url=f'/login?{query_params}', status_code=303, headers={"return_url": request.url.path})
 
 @router.post('/token')
@@ -72,7 +80,7 @@ async def login_token(remember_me: Annotated[bool, Form()] = False, login_form_d
     verify_pass = utils.verification(login_form_data.password, fetched_user.password)
     if not verify_pass:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Incorrect username or password")
-    token = oauth2.create_access_token(user_data= {"userid": fetched_user.userid, 'remember_me': remember_me})
+    token = oauth2.create_token(user_data= {"userid": fetched_user.userid, 'remember_me': remember_me})
     return {"access_token": token, "token_type": "bearer"}
 
 @router.get('/login')

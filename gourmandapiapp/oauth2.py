@@ -31,7 +31,7 @@ TOKEN_ARGS = {
     } ,
 }
 
-def create_access_token(user_data: dict, token_type: str = 'access_token_general' ):
+def create_token(user_data: dict, token_type: str = 'access_token_general' ):
     to_encode = user_data.copy()
     minutes_offset=TOKEN_ARGS[token_type]["expiration_offset_minutes"]
     if to_encode.get("remember_me", False):
@@ -45,7 +45,7 @@ def create_access_token(user_data: dict, token_type: str = 'access_token_general
         encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
-def verify_access_token(token: str, credentials_exception, strict=True):
+def verify_token(token: str, credentials_exception, strict=True):
     userid = None
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
@@ -66,7 +66,7 @@ def verify_access_token(token: str, credentials_exception, strict=True):
 # test for cookie-based auth instead of oauth2
 def get_current_user_lax(Authorization: Annotated[str, Cookie()] = 'Bearer default' , db: Session = Depends(get_db)):
     token = Authorization.split(' ')[1]
-    token_data = verify_access_token(token, credentials_exception=None, strict=False)
+    token_data = verify_token(token, credentials_exception=None, strict=False)
 
     if not token_data:
         return models.AuthUserModelORM(userid="Guest")
@@ -84,8 +84,14 @@ def get_current_user_strict(request: Request, Authorization: Annotated[str, Cook
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer",},
         )
-    token_data = verify_access_token(token, credentials_exception)
+    # status.HTTP_403_FORBIDDEN
+    token_data = verify_token(token, credentials_exception)
     user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.userid == token_data.userid).first()
+    if not user_obj.verified:
+        credentials_exception = HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is yet to be verified",
+        )
     return user_obj
 
 def verify_email_and_pass(current_email, current_password, correct_user, correct_pass):

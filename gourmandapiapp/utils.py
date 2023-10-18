@@ -2,6 +2,7 @@ from passlib.context import CryptContext
 from passlib.hash import argon2
 from passlib.exc import UnknownHashError
 import secrets
+import logging
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 interface_argon2 = lambda the_salt: argon2.using(salt_size=16, rounds=2, salt=the_salt)
@@ -21,3 +22,6 @@ def verification(plain_password, hashed_password):
             print(f'{ex}:Reverting to bcrypt algo')
             continue
     return False
+
+def send_mail(email, msg):
+    logging.info(msg=f"Sending {msg} to \n {email}")
