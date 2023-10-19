@@ -58,7 +58,7 @@ def verify_token(token: str, credentials_exception, strict=True):
         if not userid and strict:
             raise credentials_exception     
         elif not userid and strict == False:
-            return None
+            return schemas.TokenData(userid=None)
     return token_data
 
 
@@ -68,8 +68,8 @@ def get_current_user_lax(Authorization: Annotated[str, Cookie()] = 'Bearer defau
     token = Authorization.split(' ')[1]
     token_data = verify_token(token, credentials_exception=None, strict=False)
 
-    if not token_data:
-        return models.AuthUserModelORM(userid="Guest")
+    if not token_data.userid:
+        return models.AuthUserModelORM(email="Guest@gmail.com")
 
 
     user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.userid == token_data.userid).first()

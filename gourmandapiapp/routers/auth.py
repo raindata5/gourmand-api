@@ -70,6 +70,7 @@ def exc_handler(request: Request, exc):
     logging.info(msg=f'{request.url}')
     logging.info(msg=f'{request.base_url}')
     logging.info(msg=f'{request.scope}')
+    logging.info(msg=f'''{request.scope.get('router', None)}''')
     return RedirectResponse(url=f'/login?{query_params}', status_code=303, headers={"return_url": request.url.path})
 
 @router.post('/token')

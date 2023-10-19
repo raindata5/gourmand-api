@@ -12,12 +12,14 @@ from fastapi import (
     HTTPException,
     Request,
     Form,
-    Depends
+    Depends,
+    Cookie
 )
 
 from gourmandapiapp import models, oauth2, schemas
 from .db import get_db, start_redis
 from sqlalchemy.orm import Session
+from typing import Annotated
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -31,6 +33,31 @@ app.include_router(businessholdings.router)
 app.include_router(authusers.router)
 app.include_router(auth.router)
 app.add_exception_handler(status.HTTP_401_UNAUTHORIZED, auth.exc_handler)
+
+@app.middleware('http')
+async def if_user_check_verification(
+    request: Request,
+    call_next,
+    # Authorization: Annotated[str, Cookie()] = 'Bearer default' ,
+    # db: Session = Depends(get_db)
+):
+    Authorization = request.cookies.get('Authorization', 'Bearer default')
+    token = Authorization.split(' ')[1]
+    if Authorization != 'Bearer default':
+        if token_data := oauth2.verify_token(token, credentials_exception=None, strict=False):
+            db = get_db() 
+            user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.userid == token_data.userid).first()
+            if not user_obj.verified:
+                credentials_exception = HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="User is yet to be verified",
+                )
+                return RedirectResponse(
+                    url='/auth/unverified',
+                    status_code=303
+                )
+    response = await call_next(request)
+    return response
 
 @app.get("/")
 def index(request: Request, user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_lax)):

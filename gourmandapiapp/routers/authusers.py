@@ -76,11 +76,30 @@ async def create_user(
         status_code=303
     )
 
-@router.get('/confirm/{verification_token}')
+@router.get('/verify/{verification_token}')
 def verify_user(
     request: Request,
     verification_token:str,
     db: Session = Depends(get_db),
     user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_strict)
 ):
-    print(verification_token)
+    if user_obj.userid == oauth2.verify_token(verification_token, credentials_exception=None, strict=False).userid:
+        print(verification_token)
+        if not user_obj.verified:
+            user_obj.verified = True
+            db.add(user_obj)
+            db.commit()
+        return RedirectResponse(
+            url='/index_secure',
+            status_code=303
+        )
+    return RedirectResponse(
+        url='/auth/unverified',
+        status_code=303
+    )
+
+@router.get('/unverified')
+def verify_user_info(
+    request: Request,
+):
+    print('Want to send over a new verification email?')

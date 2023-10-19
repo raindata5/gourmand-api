@@ -48,7 +48,7 @@ class BusinessResponseSchema(BaseModel):
         orm_mode = True 
 
 class TokenData(BaseModel):
-    userid: int
+    userid: Optional[int] = None
 
 
 class PullDataSchema(BaseModel):
