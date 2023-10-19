@@ -43,10 +43,11 @@ async def if_user_check_verification(
 ):
     Authorization = request.cookies.get('Authorization', 'Bearer default')
     token = Authorization.split(' ')[1]
-    if Authorization != 'Bearer default':
-        if token_data := oauth2.verify_token(token, credentials_exception=None, strict=False):
-            db = get_db() 
-            user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.userid == token_data.userid).first()
+    print(request.url.path)
+    if Authorization != 'Bearer default' and not request.url.path.startswith('/auth'):
+        if userid := oauth2.verify_token(token, credentials_exception=None, strict=False).userid:
+            db = next(get_db())
+            user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.userid == userid).first()
             if not user_obj.verified:
                 credentials_exception = HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,

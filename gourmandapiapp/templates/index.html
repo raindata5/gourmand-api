@@ -31,7 +31,7 @@
     {% block nav_bar_custom %}
 
     <ul class="nav navbar-nav navbar-right mr-auto">
-      {% if user_obj.email %}
+      {% if user_obj.email != 'Guest@gmail.com' %}
       <li class="nav-item">
         <a class="nav-link mr-sm-2" href="/login">Log Out {{user_obj.email}}</a>
       </li>
