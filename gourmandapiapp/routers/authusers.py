@@ -21,7 +21,10 @@ from typing import (
 import logging
 from fastapi.responses import RedirectResponse
 
-logging.getLogger().setLevel(logging.INFO)
+# logging.getLogger().setLevel(logging.INFO)
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 templates = Jinja2Templates(directory="gourmandapiapp/templates")
 router = APIRouter(prefix= '/auth',
                     tags=['authusers'])
@@ -70,9 +73,27 @@ async def create_user(
     ) 
     token_data = oauth2.verify_token(verification_token, credentials_exception=None)
     logging.info(f"Sending email to {user_obj_new.email} \n with the token: {verification_token} containing the userid: {token_data.userid} matched to userid: {user_obj_new.userid}")
-    logging.info(f"Confirmation url: {request.url.path} or {request.base_url}/auth/confirm/{verification_token}")
+    logging.info(f"Confirmation url: {request.url.path} or {request.base_url}auth/verify/{verification_token}")
     return RedirectResponse(
         url='/login',
+        status_code=303
+    )
+
+#TODO: Protect endpoint
+@router.get('/resend_verification')
+def resend_verification(
+    request: Request,
+    db: Session = Depends(get_db),
+    user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_strict)
+):
+    verification_token = oauth2.create_token(
+        user_data= {"userid": user_obj.userid},
+        token_type="verification_token_general"
+    ) 
+    logging.info(f"Sending email to {user_obj.email} \n with the token: {verification_token}")
+    logging.info(f"Confirmation url: {request.url.path} or {request.base_url}auth/verify/{verification_token}")
+    return RedirectResponse(
+        url='/',
         status_code=303
     )
 
@@ -101,5 +122,11 @@ def verify_user(
 @router.get('/unverified')
 def verify_user_info(
     request: Request,
+    db: Session = Depends(get_db),
+    user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_strict)
 ):
     print('Want to send over a new verification email?')
+
+    return templates.TemplateResponse(
+        'auth_unverified.html', {"request": request.headers, "user_obj": user_obj}
+    )

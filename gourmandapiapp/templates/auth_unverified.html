@@ -1,0 +1,51 @@
+{% extends "index.html" %}
+
+  <head>
+{% block head %}
+    <title> Gourmand - Verify Your Account</title>
+    {% endblock %}
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-between">
+
+      <!-- <a class="navbar-brand" href="https://github.com/raindata5/gourmand-data-pipelines"> -->
+        <a class="navbar-brand" href="/">
+        <img src="https://th.bing.com/th/id/OIG.rzvxuaYqKTda_jBDjOY.?pid=ImgGn" width="50" height="50" class="d-inline-block align-top" alt="An AI generated image related to Gourmand">
+        Gourmand
+      </a>
+    {% block nav_bar_custom %}
+
+    <ul class="nav navbar-nav navbar-right mr-auto">
+      {% if user_obj.email != 'Guest@gmail.com' %}
+      <li class="nav-item">
+        <a class="nav-link mr-sm-2" href="/login">Log Out {{user_obj.email}}</a>
+      </li>
+      {% else %}
+      <li class="nav-item">
+        <a class="nav-link mr-sm-2" href="/login">Log In, {{user_obj.email}}</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link mr-sm-2" href="/auth/register"> Register </a>
+      </li>
+      {% endif %}
+
+    </ul>
+    {% endblock %}
+    {% block body %}
+    <div class="page-header">
+        <h1>
+            Hello, {{ user_obj.email }}!
+        </h1>
+        <h3>You have not verified your account yet.</h3>
+        <p>
+            Before you can access the rest of this site you need to verify your account.
+            Check your email inbox, you should have received an email with a verification link.
+        </p>
+        <p>
+            Need another confirmation email?
+            <a href="/auth/resend_verification">Click here</a>
+        </p>
+    </div>
+    {% endblock %}
+  </body>

@@ -44,7 +44,7 @@ async def if_user_check_verification(
     Authorization = request.cookies.get('Authorization', 'Bearer default')
     token = Authorization.split(' ')[1]
     print(request.url.path)
-    if Authorization != 'Bearer default' and not request.url.path.startswith('/auth'):
+    if Authorization != 'Bearer default' and not request.url.path.startswith('/auth') and not request.url.path == '/':
         if userid := oauth2.verify_token(token, credentials_exception=None, strict=False).userid:
             db = next(get_db())
             user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.userid == userid).first()
