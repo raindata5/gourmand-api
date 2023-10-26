@@ -11,7 +11,10 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     pg_oltp_api_db_test: str
     pg_oltp_api_host_test: str
-    
+    SMTP_SERVER: str
+    SMTP_PORT: int
+    SMTP_USER: str
+    SMTP_KEY: str
     class Config:
         env_file = ".env"
 
