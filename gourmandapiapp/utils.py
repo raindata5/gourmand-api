@@ -32,7 +32,11 @@ def verification(plain_password, hashed_password):
             continue
     return False
 
-def send_mail(email, subject, **kwargs):
+def send_mail(email: str, subject, **kwargs):
+    from_email = settings.SMTP_USER
+    email_prefix = from_email.split('@')[0] + '+'
+    if not email.startswith(email_prefix):
+        return None
     context_ssl = ssl.create_default_context()
     mssg_transformed = MIMEMultipart('alternative')
     mssg_transformed.add_header('from', settings.SMTP_USER)
