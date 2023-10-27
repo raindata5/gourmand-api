@@ -18,6 +18,10 @@ jobs:
       ALGORITHM: ${{secrets.ALGORITHM}}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${{secrets.ACCESS_TOKEN_EXPIRE_MINUTES}}
       pg_oltp_api_host_test: ${{secrets.pg_oltp_api_host}}
+      pg_oltp_api_host_test: ${{secrets.SMTP_KEY}}
+      pg_oltp_api_host_test: ${{secrets.SMTP_PORT}}
+      pg_oltp_api_host_test: ${{secrets.SMTP_SERVER}}
+      pg_oltp_api_host_test: ${{secrets.SMTP_USER}}
     services:
       postgres:
         image: postgres
