@@ -125,7 +125,6 @@ def verify_user_info(
     db: Session = Depends(get_db),
     user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_strict)
 ):
-    print('Want to send over a new verification email?')
 
     return templates.TemplateResponse(
         'auth_unverified.html', {"request": request.headers, "user_obj": user_obj}
