@@ -81,6 +81,8 @@ class AuthUserModelORM(Base):
     password = Column(String(200), nullable=False)
     created_at = Column(TIMESTAMP(precision=6), nullable = False, server_default=text('now()'))
     verified = Column(Boolean, nullable=False, server_default=text('false'))
+    role_id = Column(Integer(), ForeignKey('role.role_id'))
+    role = relationship("Role", back_populates='authuser')
 
     @property
     def passy(self):
@@ -92,6 +94,22 @@ class AuthUserModelORM(Base):
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
+    
+class Role(Base):
+    __tablename__ = "role"
+    __table_args__ = {"schema": "_Production"}
+    role_id = Column(Integer, primary_key=True, nullable=False)
+    name= Column(String(80), unique=True, nullable=False)
+    default = Column(Boolean, nullable=False, server_default=text('false'))
+    permissions = Column(Integer(),)
+    authuser = relationship("AuthUserModelORM", back_populates='role', lazy="dynamic")
+    __table_args__ = (
+        Index(
+            "ix_role_default",
+            "default",
+        ),
+        {"schema": "_Production"}
+    )
 
 if __name__ == "__main__":
     user = AuthUserModelORM()

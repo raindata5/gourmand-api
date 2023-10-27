@@ -57,8 +57,11 @@ class PullDataSchema(BaseModel):
     keyword: Optional[str] = Field('', max_length=100 )
     sort: Optional[str] = Field('businessname', max_length=100 )
 
-# class OAuth2PasswordRequestFormCustom(OAuth2PasswordRequestForm):
-    
+class Permission:
+    COMMENT = 1
+    WRITE = 2
+    MODERATE = 4    
+    ADMIN = 8
    
 
 # converts model object into a python dictionary or into a json string through parameter
