@@ -34,8 +34,8 @@ def verification(plain_password, hashed_password):
 
 def send_mail(email: str, subject, **kwargs):
     from_email = settings.SMTP_USER
-    email_prefix = from_email.split('@')[0] + '+'
-    if not email.startswith(email_prefix) and not email.startswith(from_email.split('@')[0]):
+    email_prefix = from_email.split('@')[0]
+    if not email.split('@')[0].split('+')[0] != email_prefix:
         return None
     context_ssl = ssl.create_default_context()
     mssg_transformed = MIMEMultipart('alternative')
