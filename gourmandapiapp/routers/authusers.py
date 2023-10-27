@@ -71,9 +71,13 @@ async def create_user(
         user_data= {"userid": user_obj_new.userid},
         token_type="verification_token_general"
     ) 
-    token_data = oauth2.verify_token(verification_token, credentials_exception=None)
-    logging.info(f"Sending email to {user_obj_new.email} \n with the token: {verification_token} containing the userid: {token_data.userid} matched to userid: {user_obj_new.userid}")
-    logging.info(f"Confirmation url: {request.url.path} or {request.base_url}auth/verify/{verification_token}")
+    confirmation_url = f'{request.base_url}auth/verify/{verification_token}'
+    utils.send_mail(
+        email=user_obj_new.email,
+        subject='Gourmand New User Verification',
+        user_obj=user_obj_new,
+        confirm_url=confirmation_url
+    )
     return RedirectResponse(
         url='/login',
         status_code=303
@@ -90,8 +94,13 @@ def resend_verification(
         user_data= {"userid": user_obj.userid},
         token_type="verification_token_general"
     ) 
-    logging.info(f"Sending email to {user_obj.email} \n with the token: {verification_token}")
-    logging.info(f"Confirmation url: {request.url.path} or {request.base_url}auth/verify/{verification_token}")
+    confirmation_url = f'{request.base_url}auth/verify/{verification_token}'
+    utils.send_mail(
+        email=user_obj.email,
+        subject='Gourmand New User Verification',
+        user_obj=user_obj,
+        confirm_url=confirmation_url
+    )
     return RedirectResponse(
         url='/',
         status_code=303
@@ -104,7 +113,7 @@ def verify_user(
     db: Session = Depends(get_db),
     user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_strict)
 ):
-    if user_obj.userid == oauth2.verify_token(verification_token, credentials_exception=None, strict=False).userid:
+    if user_obj.userid == oauth2.verify_token(verification_token, credentials_exception=None, strict=False).userid or user_obj.verified:
         print(verification_token)
         if not user_obj.verified:
             user_obj.verified = True
@@ -114,6 +123,7 @@ def verify_user(
             url='/index_secure',
             status_code=303
         )
+
     return RedirectResponse(
         url='/auth/unverified',
         status_code=303
@@ -125,7 +135,6 @@ def verify_user_info(
     db: Session = Depends(get_db),
     user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_strict)
 ):
-
     return templates.TemplateResponse(
         'auth_unverified.html', {"request": request.headers, "user_obj": user_obj}
     )
