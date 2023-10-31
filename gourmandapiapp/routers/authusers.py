@@ -83,7 +83,6 @@ async def create_user(
         status_code=303
     )
 
-#TODO: Protect endpoint
 @router.get('/resend_verification')
 def resend_verification(
     request: Request,

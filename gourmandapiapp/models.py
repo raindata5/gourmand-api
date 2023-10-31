@@ -81,8 +81,9 @@ class AuthUserModelORM(Base):
     password = Column(String(200), nullable=False)
     created_at = Column(TIMESTAMP(precision=6), nullable = False, server_default=text('now()'))
     verified = Column(Boolean, nullable=False, server_default=text('false'))
-    role_id = Column(Integer(), ForeignKey('role.role_id'))
+    role_id = Column(Integer(), ForeignKey('_Production.role.role_id'))
     role = relationship("Role", back_populates='authuser')
+
 
     @property
     def passy(self):
@@ -103,6 +104,23 @@ class Role(Base):
     default = Column(Boolean, nullable=False, server_default=text('false'))
     permissions = Column(Integer(),)
     authuser = relationship("AuthUserModelORM", back_populates='role', lazy="dynamic")
+    
+    def __init__(self, **kwargs):
+        super(Role, self).__init__(**kwargs)
+        if self.permissions is None:
+            self.permissions = 0
+    
+    def add_permission(self, perm):
+        if not self.has_permission(perm):
+            self.permissions += perm
+    def remove_permission(self, perm):
+        if self.has_permission(perm):
+            self.permissions -= perm
+    def reset_permissions(self):
+        self.permissions = 0
+    def has_permission(self, perm):
+        return self.permissions & perm == perm
+
     __table_args__ = (
         Index(
             "ix_role_default",
@@ -113,3 +131,6 @@ class Role(Base):
 
 if __name__ == "__main__":
     user = AuthUserModelORM()
+    role = Role(name='COMMENT')
+    print(role.name)
+    print(role.permissions)
