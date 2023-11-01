@@ -58,10 +58,11 @@ class PullDataSchema(BaseModel):
     sort: Optional[str] = Field('businessname', max_length=100 )
 
 class Permission:
-    COMMENT = 1
-    WRITE = 2
-    MODERATE = 4    
-    ADMIN = 8
+    FOLLOW = 1
+    COMMENT = 2
+    WRITE = 4
+    MODERATE = 8
+    ADMIN = 16
    
 
 # converts model object into a python dictionary or into a json string through parameter
