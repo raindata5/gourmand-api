@@ -19,13 +19,17 @@ from fastapi import (
 from gourmandapiapp import models, oauth2, schemas
 from .db import get_db, start_redis
 from sqlalchemy.orm import Session
-from typing import Annotated
+from typing import Annotated, Any
+from fastapi.staticfiles import StaticFiles
+from functools import wraps
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 templates = Jinja2Templates(directory="gourmandapiapp/templates")
 
+
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="gourmandapiapp/templates/static"), name="static")
 print('hello %s' % os.environ['NAME'])
 
 app.include_router(business.router)
@@ -74,3 +78,44 @@ def index(request: Request,  db: Session = Depends(get_db), user_obj: models.Aut
     return templates.TemplateResponse(
         'index.html', {"request": request.headers, "user_obj": user_obj}
     )
+
+
+class PermissionRequired:
+    def __init__(self, permission):
+        self.permission = permission
+
+    def __call__(self, function) -> Any:
+        @wraps(function)
+        def wrapped_function(*args, **kwargs)-> Any:
+            user_obj: models.AuthUserModelORM = kwargs.get('user_obj')
+            if not user_obj.can(self.permission):
+                credentials_exception = HTTPException(
+                    status_code=status.HTTP_401_FORBIDDEN,
+                    detail=f"User doesn't have {self.permission} permission",
+                )
+                logging.info(f"User doesn't have {self.permission} permission")
+                raise credentials_exception
+            return function(*args, **kwargs)
+        
+        return wrapped_function
+
+@app.get('/for_admins')
+@PermissionRequired(schemas.Permission.ADMIN)
+def for_admins(
+    request: Request,  
+    db: Session = Depends(get_db), 
+    user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_strict)
+):
+    return templates.TemplateResponse(
+        'index.html', {"request": request.headers, "user_obj": user_obj}
+    )
+
+# @app.get('/for_moderators')
+# def for_admins(
+#     request: Request,  
+#     db: Session = Depends(get_db), 
+#     user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_strict)
+# ):
+#     return templates.TemplateResponse(
+#         'index.html', {"request": request.headers, "user_obj": user_obj}
+#     )
