@@ -5,7 +5,9 @@ from sqlalchemy.dialects.postgresql import (
     TIMESTAMP
 )
 from sqlalchemy.orm import relationship
-from gourmandapiapp.db import Base
+from gourmandapiapp.db import Base, get_db
+from gourmandapiapp.schemas import Permission
+from gourmandapiapp.config import settings
 from werkzeug.security import generate_password_hash, check_password_hash
 
 class BusinessModelORM(Base):
@@ -84,6 +86,21 @@ class AuthUserModelORM(Base):
     role_id = Column(Integer(), ForeignKey('_Production.role.role_id'))
     role = relationship("Role", back_populates='authuser')
 
+    def __init__(self, **kwargs):
+        super(AuthUserModelORM, self).__init__(**kwargs)
+        if self.role is None:
+            db = next(get_db())
+            if self.email == settings.SMTP_USER:
+                self.role = db.query(Role).filter(Role.name == 'Administrator').first()
+            if self.role is None:
+                self.role = db.query(Role).filter(Role.default == True).first()
+                
+    def can(self, perm):
+        return self.role is not None and self.role.has_permission(perm)
+    
+    def is_administrator(self):
+        return self.can(Permission.ADMIN)
+
 
     @property
     def passy(self):
@@ -121,6 +138,36 @@ class Role(Base):
     def has_permission(self, perm):
         return self.permissions & perm == perm
 
+    @staticmethod
+    def insert_roles():
+        roles = {
+            'User': [
+                Permission.FOLLOW, Permission.COMMENT, Permission.WRITE
+            ],
+            'Moderator': [
+                Permission.FOLLOW, Permission.COMMENT,
+                Permission.WRITE, Permission.MODERATE
+            ],
+            'Administrator': [
+                Permission.FOLLOW, Permission.COMMENT,
+                Permission.WRITE, Permission.MODERATE,
+                Permission.ADMIN
+            ],
+        }
+        default_role = 'User'
+        for r in roles:
+            db = next(get_db())
+            role = db.query(Role).filter(Role.name == r).first()
+            if role is None:
+                role = Role(name=r)
+            role.reset_permissions()
+            for perm in roles[r]:
+                role.add_permission(perm)
+            role.default = (role.name == default_role)
+            db.add(role)
+        db.commit()
+
+
     __table_args__ = (
         Index(
             "ix_role_default",
@@ -131,6 +178,6 @@ class Role(Base):
 
 if __name__ == "__main__":
     user = AuthUserModelORM()
-    role = Role(name='COMMENT')
+    role = Role(name='COMMENT', permissions=1)
     print(role.name)
     print(role.permissions)
