@@ -86,13 +86,15 @@ class AuthUserModelORM(Base):
     role_id = Column(Integer(), ForeignKey('_Production.role.role_id'))
     role = relationship("Role", back_populates='authuser')
 
+    # Use dependency inversion in order to be able to create mock db
     def __init__(self, **kwargs):
         super(AuthUserModelORM, self).__init__(**kwargs)
-        if self.role is None:
+        if not self.role:
+            print('going to get role')
             db = next(get_db())
             if self.email == settings.SMTP_USER:
                 self.role = db.query(Role).filter(Role.name == 'Administrator').first()
-            if self.role is None:
+            elif self.role is None and self.email != 'Guest@gmail.com': #TODO: Think about assigning Role(permissions=0)
                 self.role = db.query(Role).filter(Role.default == True).first()
                 
     def can(self, perm):
@@ -159,13 +161,13 @@ class Role(Base):
             db = next(get_db())
             role = db.query(Role).filter(Role.name == r).first()
             if role is None:
-                role = Role(name=r)
+                role = Role(name=r) 
             role.reset_permissions()
             for perm in roles[r]:
                 role.add_permission(perm)
             role.default = (role.name == default_role)
             db.add(role)
-        db.commit()
+            db.commit()
 
 
     __table_args__ = (
@@ -177,7 +179,14 @@ class Role(Base):
     )
 
 if __name__ == "__main__":
-    user = AuthUserModelORM()
-    role = Role(name='COMMENT', permissions=1)
-    print(role.name)
-    print(role.permissions)
+    db = next(get_db())
+    Role.insert_roles()
+    admin_role = db.query(Role).filter(Role.name =='Administrator').first()
+    default_role = db.query(Role).filter(Role.default==True).first()
+    for u in db.query(AuthUserModelORM).all():
+            if u.role is None:
+                if u.email == settings.SMTP_USER:
+                    u.role = admin_role
+                else:
+                    u.role = default_role
+                db.commit()
