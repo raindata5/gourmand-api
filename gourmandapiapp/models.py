@@ -116,7 +116,7 @@ class AuthUserModelORM(Base):
 class Role(Base):
     __tablename__ = "role"
     __table_args__ = {"schema": "_Production"}
-    role_id = Column(Integer, primary_key=True, nullable=False)
+    role_id = Column(Integer(), primary_key=True, nullable=False)
     name= Column(String(80), unique=True, nullable=False)
     default = Column(Boolean, nullable=False, server_default=text('false'))
     permissions = Column(Integer(),)
