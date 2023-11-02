@@ -113,6 +113,12 @@ def simple_login(
     db: Session = Depends(get_db)
 ):
     user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.email == email).first()
+    if not user_obj:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
     result = oauth2.verify_email_and_pass(
         current_email=email,
         current_password=password,
