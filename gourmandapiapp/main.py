@@ -21,7 +21,7 @@ from .db import get_db, start_redis
 from sqlalchemy.orm import Session
 from typing import Annotated, Any
 from fastapi.staticfiles import StaticFiles
-from functools import wraps
+from functools import wraps, partial
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -90,7 +90,7 @@ class PermissionRequired:
             user_obj: models.AuthUserModelORM = kwargs.get('user_obj')
             if not user_obj.can(self.permission):
                 credentials_exception = HTTPException(
-                    status_code=status.HTTP_401_FORBIDDEN,
+                    status_code=status.HTTP_401_UNAUTHORIZED,
                     detail=f"User doesn't have {self.permission} permission",
                 )
                 logging.info(f"User doesn't have {self.permission} permission")
@@ -98,24 +98,34 @@ class PermissionRequired:
             return function(*args, **kwargs)
         
         return wrapped_function
+    
+def permission_required(
+    request: Request,
+    permission: int,
+    user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_strict),
+):
+    if not user_obj.can(permission):
+        credentials_exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"User doesn't have {permission} permission",
+        )
+        logging.info(f"User doesn't have {permission} permission")
+        raise credentials_exception
+    return permission
+
+admin_required = partial(
+    permission_required,
+    permission=schemas.Permission.ADMIN
+)
 
 @app.get('/for_admins')
-@PermissionRequired(schemas.Permission.ADMIN)
+# @PermissionRequired(schemas.Permission.ADMIN)
 def for_admins(
     request: Request,  
     db: Session = Depends(get_db), 
-    user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_strict)
+    user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_strict),
+    result: int = Depends(admin_required),
 ):
     return templates.TemplateResponse(
         'index.html', {"request": request.headers, "user_obj": user_obj}
     )
-
-# @app.get('/for_moderators')
-# def for_admins(
-#     request: Request,  
-#     db: Session = Depends(get_db), 
-#     user_obj: models.AuthUserModelORM = Depends(oauth2.get_current_user_strict)
-# ):
-#     return templates.TemplateResponse(
-#         'index.html', {"request": request.headers, "user_obj": user_obj}
-#     )
