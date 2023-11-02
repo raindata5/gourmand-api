@@ -69,7 +69,7 @@ def get_current_user_lax(Authorization: Annotated[str, Cookie()] = 'Bearer defau
     token_data = verify_token(token, credentials_exception=None, strict=False)
 
     if not token_data.userid:
-        return models.AuthUserModelORM(email="Guest@gmail.com")
+        return models.AuthUserModelORM(email="Guest@gmail.com",)
 
 
     user_obj = db.query(models.AuthUserModelORM).filter(models.AuthUserModelORM.userid == token_data.userid).first()
