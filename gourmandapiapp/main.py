@@ -106,7 +106,7 @@ def permission_required(
 ):
     if not user_obj.can(permission):
         credentials_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail=f"User doesn't have {permission} permission",
         )
         logging.info(f"User doesn't have {permission} permission")
