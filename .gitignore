@@ -14,3 +14,4 @@ ap_venv
 dist/
 build/
 .vscode/
+private_key.pem

@@ -3,3 +3,4 @@ p_db.txt
 p_pass.txt
 *.sql
 gourmand-api-venv
+private_key.pem
