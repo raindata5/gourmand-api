@@ -8,9 +8,9 @@ import logging
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.pg_oltp_api_user}:{settings.pg_oltp_api_password}@{settings.pg_oltp_api_host}/{settings.pg_oltp_api_db}"
+SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.pg_oltp_api_user}:{settings.pg_oltp_api_password}@{settings.pg_oltp_api_host}/{settings.pg_oltp_api_db}?sslmode=require"
 if os.environ.get("GOURMAND_ENV") == 'staging':
-    SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.pg_oltp_api_user}:{settings.pg_oltp_api_password}@{settings.pg_oltp_api_host}/{settings.pg_oltp_api_db_test}"
+    SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.pg_oltp_api_user}:{settings.pg_oltp_api_password}@{settings.pg_oltp_api_host}/{settings.pg_oltp_api_db_test}?sslmode=require"
     logging.info(msg=f'Entering {os.environ.get("GOURMAND_ENV")} env')
 
 # SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db"
