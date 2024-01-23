@@ -39,6 +39,7 @@ gunicorn = "*"
 starlette = "*"
 fastapi-login = "*"
 argon2-cffi = "*"
+cryptography = "*"
 
 [dev-packages]
 
