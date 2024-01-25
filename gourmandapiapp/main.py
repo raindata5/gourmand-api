@@ -22,13 +22,14 @@ from sqlalchemy.orm import Session
 from typing import Annotated, Any
 from fastapi.staticfiles import StaticFiles
 from functools import wraps, partial
-
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 templates = Jinja2Templates(directory="gourmandapiapp/templates")
 
 
 app = FastAPI()
+app.add_middleware(HTTPSRedirectMiddleware)
 app.mount("/static", StaticFiles(directory="gourmandapiapp/templates/static"), name="static")
 print('hello %s' % os.environ['NAME'])
 
@@ -38,7 +39,7 @@ app.include_router(authusers.router)
 app.include_router(auth.router)
 app.add_exception_handler(status.HTTP_401_UNAUTHORIZED, auth.exc_handler)
 
-@app.middleware('http')
+@app.middleware('https')
 async def if_user_check_verification(
     request: Request,
     call_next,
@@ -57,11 +58,14 @@ async def if_user_check_verification(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="User is yet to be verified",
                 )
-                return RedirectResponse(
+                resp_redirect = RedirectResponse(
                     url='/auth/unverified',
                     status_code=303
                 )
+                resp_redirect.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+                return resp_redirect
     response = await call_next(request)
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     return response
 
 @app.get("/")
