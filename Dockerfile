@@ -43,6 +43,10 @@ RUN pipenv install
 
 COPY . .
 
+COPY gourmand_cert.crt /usr/local/share/ca-certificates/
+
+RUN update-ca-certificates
+
 ENV LANG="C.UTF-8"
 
 
