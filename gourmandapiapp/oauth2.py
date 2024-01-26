@@ -17,6 +17,15 @@ from . import schemas, utils
 from fastapi import HTTPException, status, Cookie, Request
 from gourmandapiapp.config import settings
 from typing import Annotated
+import requests
+import os
+
+req_session = requests.Session()
+verify = True
+if os.environ.get("GOURMAND_ENV") == 'staging':
+    verify = '/etc/ssl/certs'
+    req_session.verify = verify
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 security = HTTPBasic()

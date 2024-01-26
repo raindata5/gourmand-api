@@ -131,7 +131,7 @@ def simple_login(
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Basic"},
         )
-    res = requests.post(
+    res = oauth2.req_session.post(
         request.headers.get("origin", "ronald") + "/token",
         data={
             "username":email,
@@ -144,5 +144,5 @@ def simple_login(
         url=unquote(return_url),
         status_code=303,
     )
-    redirect_res.set_cookie(key="Authorization", value=res_json["token_type"].title() + ' ' + res_json["access_token"])
+    redirect_res.set_cookie(key="Authorization", value=res_json["token_type"].title() + ' ' + res_json["access_token"] + '; Secure; Max-Age=1209600')
     return redirect_res

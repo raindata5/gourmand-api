@@ -53,7 +53,7 @@ def send_mail(email: str, subject, **kwargs):
 
     with smtplib.SMTP(host=settings.SMTP_SERVER, port=settings.SMTP_PORT,) as server:
         server.ehlo()
-        server.starttls(context=context_ssl)
+        server.starttls(context=context_ssl) # refactor to use implicit TLS
         server.ehlo()
         server.login(user=settings.SMTP_USER, password=settings.SMTP_KEY)
         server.sendmail(
