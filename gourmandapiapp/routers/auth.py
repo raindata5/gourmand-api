@@ -144,5 +144,5 @@ def simple_login(
         url=unquote(return_url),
         status_code=303,
     )
-    redirect_res.set_cookie(key="Authorization", value=res_json["token_type"].title() + ' ' + res_json["access_token"] + '; Secure; Max-Age=1209600')
+    redirect_res.set_cookie(key="Authorization", value=res_json["token_type"].title() + ' ' + res_json["access_token"], secure=True, max_age=600)
     return redirect_res
