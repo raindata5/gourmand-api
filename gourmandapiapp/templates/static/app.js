@@ -1,6 +1,6 @@
 
 console.log("ronald here");
-link_rv = document.querySelector('[data-id="resend-verification-link"]');
+const link_rv = document.querySelector('[data-id="resend-verification-link"]');
 link_rv.addEventListener(
   "click",
   (eve) => {
